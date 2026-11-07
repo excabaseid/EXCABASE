@@ -1,0 +1,188 @@
+
+
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Alat Berat | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/catalog.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/equipment-image-cards.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body class="catalog-page">
+    
+<!-- SIDEBAR EXCABASE -->
+<aside class="sidebar">
+    <div class="logo">EXCA<span>BASE</span></div>
+    <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+    <nav class="menu"></nav>
+</aside>
+
+
+<div class="main-content">
+
+    <header class="topbar">
+        <div>
+            <h1 class="excabase-page-title">Katalog Alat Berat</h1>
+            <p>Daftar alat berat untuk pekerjaan konstruksi dan pekerjaan tanah.</p>
+        </div>
+    </header>
+
+    <section class="stats-container">
+        <div class="stat-card">
+            <h3>Total Jenis Alat</h3>
+            <p id="totalEquipment">6</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Model Alat</h3>
+            <p id="totalEquipmentModels">—</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+
+        <div class="catalog-header">
+            <h2>Daftar Alat Berat</h2>
+
+            <div class="catalog-controls">
+                <select id="equipmentFilter">
+                    <option value="all">Semua Kategori</option>
+                    <option value="earthmoving">Earthmoving</option>
+                    <option value="transport">Pengangkutan</option>
+                    <option value="finishing">Finishing</option>
+                </select>
+
+                <input
+                    type="text"
+                    id="equipmentSearch"
+                    placeholder="Cari alat berat atau model..."
+                >
+            </div>
+        </div>
+
+        <div id="equipmentGrid" class="equipment-grid"></div>
+
+        <p id="catalogEmpty" style="display:none; text-align:center; padding:20px;">
+            Alat berat tidak ditemukan.
+        </p>
+
+    </section>
+
+</div>
+
+<script src="../js/equipment-data.js"></script>
+<script src="../js/main.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const grid = document.getElementById("equipmentGrid");
+    const searchInput = document.getElementById("equipmentSearch");
+    const categoryFilter = document.getElementById("equipmentFilter");
+    const emptyMessage = document.getElementById("catalogEmpty");
+    const totalEquipment = document.getElementById("totalEquipment");
+
+    const detailLinks = {
+        excavator: "detail-excavator.html",
+        bulldozer: "detail-bulldozer.html",
+        dumptruck: "detail-dumptruck.html",
+        wheelloader: "detail-wheelloader.html",
+        motorgrader: "detail-motorgrader.html",
+        compactor: "detail-compactor.html"
+    };
+
+    function renderEquipment() {
+        const keyword = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter.value;
+
+        const filteredEquipment = equipmentData.filter(function (item) {
+            const matchesCategory =
+                selectedCategory === "all" ||
+                item.category === selectedCategory;
+
+            const modelText = (item.models || [])
+                .map(function (model) {
+                    return [
+                        model.manufacturer,
+                        model.model,
+                        ...Object.values(model.specifications || {})
+                    ].join(" ");
+                })
+                .join(" ")
+                .toLowerCase();
+
+            const searchableText = (
+                item.name + " " +
+                item.description + " " +
+                modelText
+            ).toLowerCase();
+
+            const matchesSearch = searchableText.includes(keyword);
+
+            return matchesCategory && matchesSearch;
+        });
+
+        grid.innerHTML = "";
+
+        filteredEquipment.forEach(function (item) {
+            const card = document.createElement("div");
+            card.className = `equipment-card equipment-image-card equipment-card--${item.id}`;
+            card.dataset.category = item.category;
+
+            const modelsHTML = (item.models || [])
+                .slice(0, 3)
+                .map(function (model) {
+                    return `<li>${model.manufacturer} ${model.model}</li>`;
+                })
+                .join("");
+
+            card.innerHTML = `
+                <h3>${item.name}</h3>
+                <p>${item.description}</p>
+
+                <div class="catalog-models">
+                    <h4>Contoh Model</h4>
+                    <ul>${modelsHTML}</ul>
+                </div>
+
+                <a href="${detailLinks[item.id] || "#"}"
+                   class="equipment-detail-btn">
+                    Lihat Detail →
+                </a>
+            `;
+
+            grid.appendChild(card);
+        });
+
+        totalEquipment.textContent = equipmentData.length;
+        // Count brand/model identities once across the complete catalog, not filtered cards.
+        const normalizeModelIdentity = value => String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+        const uniqueModels = new Set(equipmentData.flatMap(item => (item.models || [])
+            .filter(model => normalizeModelIdentity(model.model))
+            .map(model => JSON.stringify([
+                normalizeModelIdentity(model.manufacturer),
+                normalizeModelIdentity(model.model)
+            ]))));
+        document.getElementById("totalEquipmentModels").textContent = uniqueModels.size;
+        emptyMessage.style.display =
+            filteredEquipment.length === 0 ? "block" : "none";
+    }
+
+    searchInput.addEventListener("input", renderEquipment);
+    categoryFilter.addEventListener("change", renderEquipment);
+
+    renderEquipment();
+});
+</script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>
+
+

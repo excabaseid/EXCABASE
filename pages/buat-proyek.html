@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Proyek | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        .project-form-page {
+            padding: 28px;
+            max-width: 1100px;
+        }
+
+        .page-heading {
+            margin-bottom: 24px;
+        }
+
+        .page-heading h1 {
+            margin: 0 0 8px;
+            color: var(--text-primary, #172033);
+        }
+
+        .page-heading p {
+            margin: 0;
+            color: var(--text-secondary, #64748b);
+        }
+
+        .form-card {
+            background: var(--card-bg, #ffffff);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 16px;
+            padding: 26px;
+        }
+
+        .form-section-title {
+            margin: 0 0 20px;
+            font-size: 18px;
+            color: var(--text-primary, #172033);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary, #172033);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color, #cbd5e1);
+            border-radius: 9px;
+            background: var(--input-bg, #ffffff);
+            color: var(--text-primary, #172033);
+            font: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: 2px solid rgba(234, 179, 8, 0.25);
+            border-color: #eab308;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 26px;
+        }
+
+        .submit-button {
+            border: none;
+            border-radius: 9px;
+            padding: 13px 22px;
+            background: #eab308;
+            color: #172033;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background: #facc15;
+        }
+
+        @media (max-width: 700px) {
+            .project-form-page {
+                padding: 18px;
+            }
+
+            .form-card {
+                padding: 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+        }
+        /* Perbaikan layout sidebar dan konten */
+body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.sidebar {
+    flex: 0 0 260px;
+    width: 260px;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    margin-left: 0;
+}
+
+/* Tampilan layar kecil */
+@media (max-width: 768px) {
+    body {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .main-content {
+        width: 100%;
+    }
+}
+    </style>
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+        <nav class="menu">
+            <div class="menu-title">OVERVIEW</div>
+            <a href="../index.html">▦ Dashboard</a>
+
+            <div class="menu-title">PROYEK</div>
+            <a href="buat-proyek.html" class="active">＋ Buat Proyek</a>
+            <a href="proyek-aktif.html">▤ Proyek Aktif</a>
+            
+            <div class="menu-title">PERHITUNGAN MANDIRI</div>
+            <a href="kalkulator-volume-tanah.html">▤ Pekerjaan Tanah</a>
+            <a href="produktivitas.html">∑ Produktivitas</a>
+            <a href="estimasi-proyek.html">▧ Estimasi Proyek</a>
+
+            <div class="menu-title">REFERENSI ALAT</div>
+            <a href="katalog.html">▣ Katalog Alat Berat</a>
+            
+            <div class="menu-title">PENGATURAN</div>
+            <a href="pengaturan.html">⚙ Pengaturan</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="project-form-page">
+
+            <div class="page-heading">
+                <h1 class="excabase-page-title">Buat Proyek Baru</h1>
+                <p>Masukkan informasi awal proyek sebagai dasar analisis pekerjaan tanah dan kebutuhan alat berat.</p>
+            </div>
+            <!-- BANNER BUAT PROYEK -->
+<section class="create-project-banner">
+    <div class="create-project-banner-content">
+
+        <span class="create-project-banner-label">
+            EXCABASE PROJECT PLANNING
+        </span>
+
+        <h2>Rencanakan Proyek dari Awal.</h2>
+
+        <p>
+            Mulai perencanaan pekerjaan tanah dengan data proyek
+            yang terstruktur dan analisis kebutuhan alat berat.
+        </p>
+
+    </div>
+</section>
+
+            <form class="form-card" id="projectForm">
+
+                <h2 class="form-section-title">Informasi Proyek</h2>
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+                        <label for="projectName">Nama Proyek</label>
+                        <input
+                            type="text"
+                            id="projectName"
+                            placeholder="Contoh: Pekerjaan Galian Jalan A"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectLocation">Lokasi Proyek</label>
+                        <input
+                            type="text"
+                            id="projectLocation"
+                            placeholder="Contoh: Magelang, Jawa Tengah"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workType">Jenis Pekerjaan</label>
+                        <select id="workType" required>
+                            <option value="">Pilih jenis pekerjaan</option>
+                            <option value="Pematangan Lahan">Pematangan Lahan</option>
+                            <option value="Galian dan Timbunan">Galian dan Timbunan</option>
+                            <option value="Pengangkutan Material">Pengangkutan Material</option>
+                            <option value="Perataan Tanah">Perataan Tanah</option>
+                            <option value="Pemadatan Tanah">Pemadatan Tanah</option>
+                            <option value="Pemuatan Material">Pemuatan Material</option>
+                            <option value="Pekerjaan Jalan">Pekerjaan Jalan</option>
+                        </select>
+                       
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soilType">Jenis Tanah</label>
+                        <select id="soilType" required>
+                            <option value="">Pilih jenis tanah</option>
+                            <option value="Tanah biasa">Tanah biasa</option>
+                            <option value="Tanah lempung">Tanah lempung</option>
+                            <option value="Tanah berpasir">Tanah berpasir</option>
+                            <option value="Tanah keras">Tanah keras</option>
+                            <option value="Batuan">Batuan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soilVolumeBCM">Volume Tanah (BCM)</label>
+                        <input
+                            type="number"
+                            id="soilVolumeBCM"
+                            min="0"
+                            step="any"
+                            placeholder="Masukkan volume tanah"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="targetDays">Target Durasi (hari)</label>
+                        <input
+                            type="number"
+                            id="targetDays"
+                            min="1"
+                            step="1"
+                            placeholder="Target waktu pengerjaan"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workHoursPerDay">Jam Kerja per Hari</label>
+                        <input
+                            type="number"
+                            id="workHoursPerDay"
+                            min="1"
+                            max="24"
+                            step="any"
+                            value="8"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-button">
+                        Simpan dan Lanjutkan →
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById("projectForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const project = {
+                id: Date.now(),
+                name: document.getElementById("projectName").value.trim(),
+                location: document.getElementById("projectLocation").value.trim(),
+                workType: document.getElementById("workType").value,
+                soilType: document.getElementById("soilType").value,
+                soilVolumeBCM: Number(document.getElementById("soilVolumeBCM").value),
+                haulDistanceKm: Number(document.getElementById("haulDistanceKm")?.value || 0),
+                targetDays: Number(document.getElementById("targetDays").value),
+                workHoursPerDay: Number(document.getElementById("workHoursPerDay").value),
+                results: {},
+                createdAt: new Date().toISOString()
+            };
+
+            // Mengambil daftar proyek yang sudah tersimpan
+let projects = [];
+
+try {
+    const savedProjects = JSON.parse(
+        localStorage.getItem("excabase_projects") || "[]"
+    );
+
+    if (Array.isArray(savedProjects)) {
+        projects = savedProjects;
+    }
+} catch (error) {
+    console.error("Gagal membaca daftar proyek:", error);
+    alert("Daftar proyek tidak dapat dibaca. Data lama tidak diubah.");
+    return;
+}
+
+// Memasukkan proyek aktif lama jika belum ada dalam daftar
+try {
+    const oldProject = JSON.parse(
+        localStorage.getItem("excabase_active_project") || "null"
+    );
+
+    if (
+        oldProject &&
+        !projects.some(item => String(item.id) === String(oldProject.id))
+    ) {
+        projects.push(oldProject);
+    }
+} catch (error) {
+    console.error("Gagal membaca proyek aktif lama:", error);
+    alert("Data proyek aktif lama tidak dapat dibaca. Penyimpanan dibatalkan.");
+    return;
+}
+
+// Menambahkan proyek baru
+projects.push(project);
+
+// Menyimpan daftar semua proyek
+try {
+    localStorage.setItem(
+        "excabase_projects",
+        JSON.stringify(projects)
+    );
+
+    // Tetap menyimpan proyek aktif untuk kompatibilitas
+    // dengan kalkulator dan tahapan analisis yang sudah ada
+    localStorage.setItem(
+        "excabase_active_project",
+        JSON.stringify(project)
+    );
+} catch (error) {
+    console.error("Gagal menyimpan proyek:", error);
+    alert("Penyimpanan proyek gagal. Periksa ruang penyimpanan browser.");
+    return;
+}
+
+// Menuju halaman Proyek Aktif
+window.location.href = "proyek-aktif.html";
+        });
+    </script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

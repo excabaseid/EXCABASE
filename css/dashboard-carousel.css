@@ -1,0 +1,94 @@
+/* Reuse the existing hero's content styles; only slides and controls opt in. */
+.dashboard-hero.hero-carousel {
+    display: grid;
+    padding: 0;
+    background: #0c2031;
+    isolation: isolate;
+    touch-action: pan-y pinch-zoom;
+}
+.hero-carousel .hero-carousel-slide {
+    --hero-photo: url('../assets/excavator.jpg');
+    --hero-position: center;
+    grid-area: 1 / 1;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 310px;
+    padding: 45px 42px;
+    background-image: linear-gradient(90deg, rgba(12,32,49,.96) 0%, rgba(12,32,49,.88) 42%, rgba(12,32,49,.25) 100%), var(--hero-photo);
+    background-size: cover;
+    background-position: var(--hero-position);
+    background-repeat: no-repeat;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 600ms ease, visibility 0s linear 600ms;
+}
+.hero-carousel .hero-carousel-slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+.hero-carousel .hero-carousel-slide--catalog { --hero-photo: url('../assets/hero-katalog.jpg'); --hero-position: 58% center; }
+.hero-carousel .hero-carousel-slide--productivity { --hero-photo: url('../assets/hero-produktivitas.jpg?v=1fa4e21bf3f8'); --hero-position: 60% 55%; }
+.hero-carousel .hero-carousel-slide--estimate { --hero-photo: url('../assets/hero-estimasi.jpg?v=b5ed8079fa2f'); --hero-position: 60% 55%; }
+.hero-carousel .hero-carousel-controls {
+    position: absolute;
+    z-index: 2;
+    inset: auto 30px 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.hero-carousel .hero-carousel-dots { display: flex; flex: 1; justify-content: center; min-width: 0; }
+.hero-carousel .hero-carousel-controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 200ms ease, color 200ms ease;
+}
+.hero-carousel .hero-carousel-dots .hero-carousel-dot { flex-basis: 32px; width: 32px; }
+.hero-carousel .hero-carousel-dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    background: rgba(255,255,255,.35);
+}
+.hero-carousel .hero-carousel-dot[aria-current="true"]::before { background: #ffc83d; border-color: #ffc83d; }
+.hero-carousel .hero-carousel-controls button:hover { background: rgba(255,255,255,.14); color: #ffd45b; }
+.hero-carousel .hero-carousel-controls button:focus-visible { outline: 2px solid #ffd45b; outline-offset: -4px; }
+@media screen {
+    html.excabase-dark body .hero-carousel .dashboard-hero-content h2 { color: #fff !important; }
+    html.excabase-dark body .hero-carousel .dashboard-hero-content h2 span { color: #ffc83d !important; }
+    html.excabase-dark body .hero-carousel .dashboard-hero-badge { color: #ffd45b !important; }
+    html.excabase-dark body .hero-carousel .dashboard-hero-btn { color: #142b3b !important; }
+    html.excabase-dark body .hero-carousel .hero-carousel-controls button { background: transparent !important; color: #fff !important; }
+    html.excabase-dark body .hero-carousel .hero-carousel-controls button:hover { background: rgba(255,255,255,.14) !important; color: #ffd45b !important; }
+}
+@media (max-width: 650px) {
+    .hero-carousel .hero-carousel-slide { min-height: auto; padding: 32px 24px 52px; --hero-position: 65% center; }
+    .hero-carousel .hero-carousel-slide--catalog { --hero-position: 70% center; }
+    .hero-carousel .hero-carousel-slide--productivity { --hero-position: 60% 55%; }
+    .hero-carousel .hero-carousel-slide--estimate { --hero-position: 65% 55%; }
+    .hero-carousel .hero-carousel-controls { left: 8px; right: 8px; gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-carousel .hero-carousel-slide, .hero-carousel .hero-carousel-controls button,
+    .hero-carousel .dashboard-hero-btn { transition: none; }
+    .hero-carousel .dashboard-hero-btn:hover { transform: none; }
+}

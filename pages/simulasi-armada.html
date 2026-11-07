@@ -1,0 +1,638 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Armada | EXCABASE</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .fleet-page {
+            display: grid;
+            gap: 26px;
+            color: #17324d;
+        }
+
+        .fleet-page * {
+            box-sizing: border-box;
+        }
+
+        .fleet-page .calculator-card {
+            min-width: 0;
+            padding: 24px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 3px 16px rgba(20, 45, 70, .035);
+        }
+
+        .fleet-page h2 {
+            font-size: 21px;
+            margin: 0 0 8px;
+        }
+
+        .fleet-intro {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .fleet-summary-grid,
+        .fleet-scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .fleet-summary-item {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 0;
+        }
+
+        .fleet-summary-item span {
+            display: block;
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .fleet-summary-item strong {
+            display: block;
+            font-size: 22px;
+            overflow-wrap: anywhere;
+        }
+
+        .fleet-status {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+
+        .fleet-scenario-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            min-width: 0;
+        }
+
+        .fleet-scenario-card[data-fleet-scenario="dasar"] {
+            border-top: 4px solid #f0b400;
+        }
+
+        .fleet-scenario-card[data-fleet-scenario="hemat"] {
+            border-top: 4px solid #19a7a0;
+        }
+
+        .fleet-scenario-card[data-fleet-scenario="cepat"] {
+            border-top: 4px solid #2563a6;
+        }
+
+        .fleet-scenario-card h3 {
+            font-size: 19px;
+            margin: 0 0 8px;
+        }
+
+        .fleet-scenario-card > p {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+            min-height: 62px;
+        }
+
+        .fleet-equipment-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .fleet-equipment-item {
+            background: #f5f7fa;
+            border: 1px solid #edf0f4;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .fleet-equipment-item h4 {
+            margin: 0 0 10px;
+            font-size: 14px;
+        }
+
+        .fleet-equipment-item p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .fleet-equipment-item strong {
+            color: #17324d;
+        }
+
+        .fleet-equipment-item label {
+            display: block;
+            margin: 12px 0 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .fleet-equipment-item input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+            color: #17324d;
+            font-size: 14px;
+        }
+
+        .fleet-equipment-item input:disabled {
+            background: #e9edf2;
+            color: #64748b;
+        }
+
+        .fleet-card-total {
+            margin-top: 16px;
+            padding: 13px;
+            background: #f5f7fa;
+            border-radius: 10px;
+        }
+
+        .fleet-card-total span {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .fleet-card-total strong {
+            font-size: 20px;
+        }
+
+        .fleet-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .fleet-btn {
+            border: none;
+            border-radius: 9px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .fleet-btn-primary {
+            background: #f0b400;
+            color: #172b42;
+        }
+
+        .fleet-btn-primary:hover {
+            background: #dca600;
+        }
+
+        .fleet-btn-secondary {
+            background: #edf2f7;
+            color: #17324d;
+        }
+
+        .fleet-btn-secondary:hover {
+            background: #dfe7ef;
+        }
+
+        .fleet-table-wrapper {
+            overflow-x: auto;
+            margin-top: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .fleet-table {
+            width: 100%;
+            min-width: 620px;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .fleet-table th {
+            background: #f5f7fa;
+            font-weight: 700;
+        }
+
+        .fleet-table th,
+        .fleet-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .fleet-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .fleet-evaluation-panel {
+            margin-top: 18px;
+            padding: 22px;
+            background: #f7f9fc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #f0b400;
+            border-radius: 12px;
+        }
+
+        .fleet-evaluation-panel > span {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        #fleetEvaluationDetails h3 {
+            font-size: 19px;
+            margin: 10px 0 15px;
+        }
+
+        #fleetEvaluationDetails p {
+            font-size: 14px;
+            line-height: 1.7;
+            margin: 8px 0;
+        }
+
+        #fleetEvaluationDetails p strong {
+            font-size: inherit;
+        }
+
+        .fleet-select {
+            width: 100%;
+            max-width: 340px;
+            margin-top: 8px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            background: #fff;
+            color: #17324d;
+            font-size: 14px;
+        }
+
+        .fleet-form-label {
+            display: block;
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1100px) {
+            .fleet-scenario-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fleet-scenario-card > p {
+                min-height: 0;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .fleet-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fleet-page .calculator-card {
+                padding: 18px;
+            }
+
+            .fleet-actions {
+                flex-direction: column;
+            }
+
+            .fleet-btn {
+                width: 100%;
+            }
+        }
+
+        
+/* ========================================
+   TAMPILAN 2 KOLOM REKOMENDASI ARMADA
+======================================== */
+
+.fleet-recommendation-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 18px;
+    align-items: stretch;
+}
+
+.fleet-recommendation-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 22px;
+    min-width: 0;
+    height: 100%;
+}
+
+.fleet-recommendation-card:first-child {
+    border-top: 4px solid #eab308;
+}
+
+.fleet-recommendation-card:last-child {
+    border-top: 4px solid #17324d;
+}
+
+.fleet-recommendation-card h4 {
+    font-size: 12px;
+    color: #64748b;
+    letter-spacing: 0.7px;
+    margin: 0 0 10px;
+}
+
+.fleet-recommendation-card h3 {
+    font-size: 21px;
+    margin: 0 0 18px;
+    color: #17324d;
+}
+
+.fleet-recommendation-stats {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.fleet-recommendation-stats > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.fleet-recommendation-stats span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.fleet-recommendation-stats strong {
+    font-size: 14px;
+    color: #17324d;
+    text-align: right;
+}
+
+.fleet-recommendation-target {
+    color: #15803d !important;
+    font-weight: 700;
+}
+
+.fleet-recommendation-note {
+    margin-top: 20px !important;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+    .fleet-recommendation-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+    </style>
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/results-ui.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+
+<body data-results-ui>
+    
+<!-- SIDEBAR EXCABASE -->
+<aside class="sidebar">
+    <div class="logo">EXCA<span>BASE</span></div>
+    <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+    <nav class="menu"></nav>
+</aside>
+
+    <div class="main-content fleet-page">
+
+        <header class="page-header">
+            <h1 class="excabase-page-title">Simulasi Armada Proyek</h1>
+            <p>
+                Bandingkan komposisi alat berat, durasi,
+                dan biaya operasional untuk menentukan
+                alternatif pelaksanaan proyek.
+            </p>
+        </header>
+
+        <!-- INFORMASI PROYEK -->
+        <section class="calculator-card">
+            <h2>Informasi Proyek</h2>
+            <p class="fleet-intro">
+                Data diambil dari hasil Estimasi Waktu & Biaya
+                pada proyek aktif.
+            </p>
+
+            <div class="fleet-summary-grid">
+                <div class="fleet-summary-item">
+                    <span>Target Durasi</span>
+                    <strong id="fleetTargetDays">-</strong>
+                </div>
+
+                <div class="fleet-summary-item">
+                    <span>Jumlah Alat Dasar</span>
+                    <strong id="fleetBaseUnits">-</strong>
+                </div>
+
+                <div class="fleet-summary-item">
+                    <span>Biaya Estimasi Dasar</span>
+                    <strong id="fleetBaseCost">-</strong>
+                </div>
+            </div>
+
+            <p id="fleetDataStatus" class="fleet-status">
+                Memeriksa data estimasi proyek...
+            </p>
+        </section>
+
+        <!-- KONFIGURASI TIGA SKENARIO -->
+        <section class="calculator-card">
+            <h2>Konfigurasi Skenario Armada</h2>
+            <p class="fleet-intro">
+                Ketiga skenario ditampilkan sekaligus.
+                Skenario Dasar mengikuti hasil Estimasi,
+                sedangkan Hemat dan Cepat dapat disesuaikan.
+            </p>
+
+            <div class="fleet-scenario-grid">
+
+                <div class="fleet-scenario-card"
+                     data-fleet-scenario="dasar">
+
+                    <h3>Dasar</h3>
+                    <p>
+                        Konfigurasi asli dari tahap Estimasi
+                        Waktu & Biaya. Jumlah unit tidak dapat diubah.
+                    </p>
+
+                    <div id="fleetEquipmentDasar"
+                         class="fleet-equipment-list"></div>
+
+                    <div class="fleet-card-total">
+                        <span>Total Armada</span>
+                        <strong id="fleetTotalDasar">-</strong>
+                    </div>
+                </div>
+
+                <div class="fleet-scenario-card"
+                     data-fleet-scenario="hemat">
+
+                    <h3>Hemat</h3>
+                    <p>
+                        Alternatif penggunaan jumlah unit
+                        lebih sedikit. Tidak otomatis berarti
+                        biaya operasional lebih rendah.
+                    </p>
+
+                    <div id="fleetEquipmentHemat"
+                         class="fleet-equipment-list"></div>
+
+                    <div class="fleet-card-total">
+                        <span>Total Armada</span>
+                        <strong id="fleetTotalHemat">-</strong>
+                    </div>
+                </div>
+
+                <div class="fleet-scenario-card"
+                     data-fleet-scenario="cepat">
+
+                    <h3>Cepat</h3>
+                    <p>
+                        Alternatif penambahan jumlah unit
+                        untuk memperpendek durasi pekerjaan.
+                    </p>
+
+                    <div id="fleetEquipmentCepat"
+                         class="fleet-equipment-list"></div>
+
+                    <div class="fleet-card-total">
+                        <span>Total Armada</span>
+                        <strong id="fleetTotalCepat">-</strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="fleet-actions">
+                <button type="button"
+                        class="fleet-btn fleet-btn-primary"
+                        id="calculateFleetScenarioBtn">
+                    Hitung Semua Skenario
+                </button>
+
+                <button type="button"
+                        class="fleet-btn fleet-btn-secondary"
+                        id="resetFleetScenarioBtn">
+                    Reset Konfigurasi
+                </button>
+            </div>
+        </section>
+
+        <!-- PERBANDINGAN -->
+        <section class="calculator-card">
+            <h2>Hasil Perbandingan Skenario</h2>
+            <p class="fleet-intro">
+                Perbandingan jumlah unit, biaya operasional,
+                dan durasi alat terlama dari setiap skenario.
+            </p>
+
+            <div class="fleet-table-wrapper">
+                <table class="fleet-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Dasar</th>
+                            <th>Hemat</th>
+                            <th>Cepat</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="fleetComparisonBody">
+                        <tr>
+                            <td colspan="4">
+                                Klik Hitung Semua Skenario
+                                untuk menampilkan hasil.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- EVALUASI -->
+        <section class="calculator-card">
+            <h2>Evaluasi dan Rekomendasi Armada</h2>
+
+            <div class="fleet-evaluation-panel"
+                 id="fleetEvaluationResult">
+
+                <span>HASIL EVALUASI</span>
+
+                <div id="fleetEvaluationDetails">
+                    Jalankan simulasi untuk melihat
+                    evaluasi dan rekomendasi armada.
+                </div>
+            </div>
+        </section>
+
+        <!-- SIMPAN SKENARIO -->
+        <section class="calculator-card">
+            <h2>Skenario Terpilih</h2>
+            <p class="fleet-intro">
+                Tentukan skenario yang akan digunakan
+                dalam Analisis & Laporan proyek.
+            </p>
+
+            <label class="fleet-form-label"
+                   for="fleetSelectedScenario">
+                Pilih Skenario
+            </label>
+
+            <select class="fleet-select"
+                    id="fleetSelectedScenario">
+                <option value="dasar">Dasar</option>
+                <option value="hemat">Hemat</option>
+                <option value="cepat">Cepat</option>
+            </select>
+
+            <div class="fleet-actions">
+                <button type="button"
+                        class="fleet-btn fleet-btn-primary"
+                        id="saveFleetScenarioBtn">
+                    Simpan Skenario Terpilih
+                </button>
+            </div>
+
+            <p id="fleetSaveStatus"
+               class="fleet-status"></p>
+        </section>
+
+    </div>
+
+    <script src="../js/project-storage.js"></script>
+    <script src="../js/fleet-simulation.js"></script>
+    <script src="../js/project-lock.js"></script>
+    <script src="../js/project-navigation.js"></script>
+    <script src="../js/sidebar-manager.js"></script>
+<script src="../js/results-ui.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

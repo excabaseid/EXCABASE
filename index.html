@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+(function () {
+    try {
+        if (
+            sessionStorage.getItem("excabase_welcome_seen") !== "true"
+        ) {
+            window.location.replace("pages/welcome.html");
+        }
+    } catch (error) {
+        console.warn("Welcome session tidak tersedia:", error);
+    }
+})();
+</script>
+    <title>EXCABASE | Heavy Equipment Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="css/page-titles.css">
+    <link rel="stylesheet" href="css/dashboard-carousel.css?v=8f5996e60735">
+    <link rel="stylesheet" href="css/sidebar-shell.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+        
+<nav class="menu">
+
+    <div class="menu-title">OVERVIEW</div>
+    <a href="index.html" class="active">▦ Dashboard</a>
+
+    <div class="menu-title">PROYEK</div>
+    <a href="pages/buat-proyek.html">＋ Buat Proyek</a>
+    <a href="pages/proyek-aktif.html">▤ Proyek Aktif</a>
+
+    <div class="menu-title">PERHITUNGAN MANDIRI</div>
+    <a href="pages/kalkulator-volume-tanah.html">▤ Pekerjaan Tanah</a>
+    <a href="pages/produktivitas.html">∑ Produktivitas</a>
+    <a href="pages/estimasi-proyek.html">▧ Estimasi Proyek</a>
+
+    <div class="menu-title">REFERENSI ALAT</div>
+    <a href="pages/katalog.html">▣ Katalog Alat Berat</a>
+
+    <div class="menu-title">PENGATURAN</div>
+    <a href="pages/pengaturan.html">⚙ Pengaturan</a>
+
+</nav>
+    </aside>
+
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="header">
+            <div>
+                <h1 class="excabase-page-title">Beranda</h1>
+                <p>Selamat datang di EXCABASE.</p>
+            </div>
+
+            <div class="profile">
+                Administrator
+            </div>
+                </header>
+
+        <!-- HERO BANNER EXCABASE -->
+        <section class="dashboard-hero hero-carousel" id="dashboardHero" aria-label="Fitur utama EXCABASE" aria-roledescription="carousel">
+            <div class="hero-carousel-slide hero-carousel-slide--project is-active" role="group" aria-roledescription="slide" aria-label="1 dari 4" aria-hidden="false">
+                <div class="dashboard-hero-content">
+                    <span class="dashboard-hero-badge">HEAVY EQUIPMENT &amp; EARTHWORK PLATFORM</span>
+                    <h2>Kelola Proyek Pekerjaan Tanah <span>Lebih Efisien.</span></h2>
+                    <p>Rencanakan kebutuhan alat berat, analisis produktivitas, dan estimasikan pekerjaan tanah dalam satu platform.</p>
+                    <div class="dashboard-hero-actions">
+                        <a href="pages/buat-proyek.html" class="dashboard-hero-btn">+ Buat Proyek Baru</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-carousel-slide hero-carousel-slide--catalog" role="group" aria-roledescription="slide" aria-label="2 dari 4" aria-hidden="true" inert>
+                <div class="dashboard-hero-content">
+                    <span class="dashboard-hero-badge">HEAVY EQUIPMENT CATALOG</span>
+                    <h2>Jelajahi Berbagai Jenis <span>Alat Berat.</span></h2>
+                    <p>Kenali jenis, fungsi, dan contoh model alat berat untuk mendukung pekerjaan konstruksi dan pekerjaan tanah.</p>
+                    <div class="dashboard-hero-actions">
+                        <a href="pages/katalog.html" class="dashboard-hero-btn" tabindex="-1">Jelajahi Alat Berat</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-carousel-slide hero-carousel-slide--productivity" role="group" aria-roledescription="slide" aria-label="3 dari 4" aria-hidden="true" inert>
+                <div class="dashboard-hero-content">
+                    <span class="dashboard-hero-badge">EQUIPMENT PRODUCTIVITY</span>
+                    <h2>Hitung Produktivitas Alat Berat <span>dengan Mudah.</span></h2>
+                    <p>Analisis kemampuan produksi berbagai jenis alat berat berdasarkan parameter pekerjaan dan spesifikasi alat.</p>
+                    <div class="dashboard-hero-actions">
+                        <a href="pages/produktivitas.html" class="dashboard-hero-btn" tabindex="-1">Hitung Produktivitas</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-carousel-slide hero-carousel-slide--estimate" role="group" aria-roledescription="slide" aria-label="4 dari 4" aria-hidden="true" inert>
+                <div class="dashboard-hero-content">
+                    <span class="dashboard-hero-badge">TIME &amp; COST ESTIMATION</span>
+                    <h2>Rencanakan Kebutuhan Alat, <span>Waktu, dan Biaya.</span></h2>
+                    <p>Estimasi jumlah unit alat berat, durasi pekerjaan, dan biaya operasional melalui perhitungan mandiri.</p>
+                    <div class="dashboard-hero-actions">
+                        <a href="pages/estimasi-proyek.html" class="dashboard-hero-btn" tabindex="-1">Mulai Estimasi</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-carousel-controls" aria-label="Navigasi banner">
+                <button type="button" class="hero-carousel-arrow" data-hero-prev aria-label="Slide sebelumnya">&#10094;</button>
+                <div class="hero-carousel-dots" role="group" aria-label="Pilih slide">
+                    <button type="button" class="hero-carousel-dot" data-hero-dot="0" aria-label="Tampilkan slide 1: Buat Proyek" aria-current="true"></button>
+                    <button type="button" class="hero-carousel-dot" data-hero-dot="1" aria-label="Tampilkan slide 2: Katalog Alat Berat" aria-current="false"></button>
+                    <button type="button" class="hero-carousel-dot" data-hero-dot="2" aria-label="Tampilkan slide 3: Produktivitas Mandiri" aria-current="false"></button>
+                    <button type="button" class="hero-carousel-dot" data-hero-dot="3" aria-label="Tampilkan slide 4: Estimasi Mandiri" aria-current="false"></button>
+                </div>
+                <button type="button" class="hero-carousel-arrow" data-hero-next aria-label="Slide berikutnya">&#10095;</button>
+            </div>
+        </section>
+
+        <!-- SUMMARY DASHBOARD -->
+<section class="cards dashboard-stats">
+
+    <div class="card highlight">
+        <div class="stat-icon">▦</div>
+        <p>Total Proyek</p>
+        <h2 id="totalProjects">0</h2>
+        <small>Seluruh proyek yang dibuat</small>
+    </div>
+
+    <div class="card highlight">
+        <div class="stat-icon">◷</div>
+        <p>Proyek Aktif</p>
+        <h2 id="activeProjects">0</h2>
+        <small>Dalam proses analisis</small>
+    </div>
+
+    <div class="card highlight">
+        <div class="stat-icon">✓</div>
+        <p>Proyek Selesai</p>
+        <h2 id="completedProjects">0</h2>
+        <small>Analisis telah diselesaikan</small>
+    </div>
+
+</section>
+
+        <!-- CONTENT -->
+        <section class="content-grid">
+
+            <!-- RINGKASAN PROYEK -->
+<div class="panel dashboard-project-panel">
+
+    <div class="dashboard-panel-header">
+        <div>
+            <h3>Ringkasan Proyek</h3>
+            <p>Pantau perkembangan analisis proyek pekerjaan tanah.</p>
+        </div>
+
+        <a href="pages/proyek-aktif.html" class="dashboard-view-all">
+            Lihat Semua →
+        </a>
+    </div>
+
+    <div class="dashboard-project-list" id="dashboardProjectList">
+
+        <div class="dashboard-empty-project">
+            <div class="dashboard-empty-icon">▤</div>
+
+            <h4>Belum Ada Proyek Ditampilkan</h4>
+
+            <p>
+                Proyek yang kamu buat nantinya akan muncul
+                di sini beserta progres analisisnya.
+            </p>
+
+            <a href="pages/buat-proyek.html">
+                + Buat Proyek Baru
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+            <!-- AKSES CEPAT DASHBOARD -->
+<div class="panel dashboard-quick-panel">
+
+    <h3>Akses Cepat</h3>
+    <p class="dashboard-quick-desc">
+        Kelola proyek pekerjaan tanah melalui menu berikut.
+    </p>
+
+    <div class="dashboard-quick-list">
+
+        <a href="pages/buat-proyek.html" class="dashboard-quick-item">
+            <span class="dashboard-quick-icon">＋</span>
+            <span class="dashboard-quick-text">
+                <strong>Buat Proyek</strong>
+                <small>Mulai analisis proyek baru</small>
+            </span>
+            <span class="dashboard-quick-arrow">→</span>
+        </a>
+
+        <a href="pages/proyek-aktif.html" class="dashboard-quick-item">
+            <span class="dashboard-quick-icon">▤</span>
+            <span class="dashboard-quick-text">
+                <strong>Proyek Aktif</strong>
+                <small>Lanjutkan proyek yang tersimpan</small>
+            </span>
+            <span class="dashboard-quick-arrow">→</span>
+        </a>
+    </div>
+</div>
+
+        </section>
+
+    </main>
+
+</div>
+<script src="js/main.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/dashboard-carousel.js?v=658e9e2665ab"></script>
+<script src="js/sidebar-shell.js"></script>
+</body>
+</html>

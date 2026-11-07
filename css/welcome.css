@@ -1,0 +1,329 @@
+
+/* ========================================
+   EXCABASE — CINEMATIC WELCOME PAGE
+======================================== */
+
+:root {
+    --welcome-navy: #10283a;
+    --welcome-yellow: #ffc533;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body.welcome-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    background: var(--welcome-navy);
+    color: #fff;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* VIDEO BACKGROUND */
+
+.welcome-background,
+.welcome-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.welcome-background {
+    z-index: 0;
+    background: #10283a;
+    overflow: hidden;
+}
+
+.welcome-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.welcome-video.is-active {
+    opacity: 1;
+}
+
+/* NAVY CINEMATIC OVERLAY */
+
+.welcome-overlay {
+    z-index: 1;
+    background: linear-gradient(
+        90deg,
+        rgba(8, 25, 40, 0.78) 0%,
+        rgba(10, 30, 46, 0.58) 50%,
+        rgba(10, 30, 46, 0.35) 100%
+    );
+}
+
+/* MAIN LAYOUT */
+
+.welcome-layout {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    padding: 32px clamp(24px, 6vw, 100px);
+}
+
+.welcome-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.welcome-logo {
+    font-size: 28px;
+    font-weight: 850;
+    letter-spacing: 1.5px;
+    color: #fff;
+}
+
+.welcome-logo span {
+    color: var(--welcome-yellow);
+}
+
+.welcome-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+/* WELCOME CONTENT */
+
+.welcome-main {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+}
+
+.welcome-content {
+    width: 100%;
+    max-width: 800px;
+}
+
+.welcome-label {
+    display: inline-block;
+    margin-bottom: 22px;
+    color: var(--welcome-yellow);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+}
+
+.welcome-content h1 {
+    margin: 0 0 24px;
+    color: #fff;
+    font-size: clamp(46px, 6.5vw, 96px);
+    font-weight: 850;
+    line-height: 1.05;
+    letter-spacing: -2px;
+}
+
+.welcome-content h1 span {
+    color: var(--welcome-yellow);
+}
+
+.welcome-description {
+    max-width: 570px;
+    margin: 0 0 34px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: clamp(15px, 1.5vw, 19px);
+    line-height: 1.8;
+}
+
+/* START BUTTON */
+
+.welcome-start-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    min-height: 52px;
+    padding: 15px 28px;
+    border: 1px solid var(--welcome-yellow);
+    border-radius: 9px;
+    background: var(--welcome-yellow);
+    color: var(--welcome-navy);
+    font-size: 15px;
+    font-weight: 750;
+    text-decoration: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    transition:
+        transform 0.25s ease,
+        background-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.welcome-start-btn:hover {
+    transform: translateY(-3px);
+    background: #ffda70;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+}
+
+.welcome-start-btn:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+}
+
+.welcome-start-btn span {
+    font-size: 21px;
+}
+
+/* FOOTER */
+
+.welcome-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+/* ENTRANCE ANIMATIONS */
+
+@keyframes welcomeFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.welcome-logo,
+.welcome-header p,
+.welcome-label,
+.welcome-content h1,
+.welcome-description,
+.welcome-start-btn {
+    animation: welcomeFadeUp 0.8s ease both;
+}
+
+.welcome-header p {
+    animation-delay: 0.15s;
+}
+
+.welcome-label {
+    animation-delay: 0.25s;
+}
+
+.welcome-content h1 {
+    animation-delay: 0.4s;
+}
+
+.welcome-description {
+    animation-delay: 0.6s;
+}
+
+.welcome-start-btn {
+    animation-delay: 0.8s;
+}
+
+/* TABLET & MOBILE */
+
+@media (max-width: 768px) {
+    .welcome-layout {
+        padding: 24px 22px;
+    }
+
+    .welcome-header {
+        align-items: flex-start;
+    }
+
+    .welcome-logo {
+        font-size: 24px;
+    }
+
+    .welcome-header p {
+        max-width: 135px;
+        font-size: 9px;
+        line-height: 1.5;
+        text-align: right;
+    }
+
+    .welcome-content h1 {
+        font-size: clamp(40px, 10vw, 64px);
+        letter-spacing: -1px;
+    }
+
+    .welcome-label {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+    }
+
+    .welcome-description {
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .welcome-overlay {
+        background: linear-gradient(
+            180deg,
+            rgba(8, 25, 40, 0.55) 0%,
+            rgba(8, 25, 40, 0.7) 55%,
+            rgba(8, 25, 40, 0.75) 100%
+        );
+    }
+
+    .welcome-footer {
+        flex-direction: column;
+        gap: 5px;
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 380px) {
+    .welcome-content h1 {
+        font-size: 36px;
+    }
+
+    .welcome-start-btn {
+        padding: 13px 20px;
+    }
+}
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome-video {
+        transition: none;
+    }
+
+    .welcome-logo,
+    .welcome-header p,
+    .welcome-label,
+    .welcome-content h1,
+    .welcome-description,
+    .welcome-start-btn {
+        animation: none;
+    }
+
+    .welcome-start-btn {
+        transition: none;
+    }
+}

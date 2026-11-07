@@ -1,0 +1,51 @@
+/* Only dark-mode colors. Layout and light-mode styling remain page-owned.
+   Screen scope preserves the report's existing white print output. */
+@media screen {
+    html.excabase-dark {
+        color-scheme: dark;
+        --text-primary: #e5edf5;
+        --text-secondary: #b6c6d8;
+        --card-bg: #1b2b3d;
+        --border-color: #40536a;
+        --input-bg: #122133;
+    }
+    html.excabase-dark body { background: #101b29 !important; color: #e5edf5 !important; }
+    /* Navigation and page surfaces */
+    html.excabase-dark body :is(.sidebar, .profile, .card, .stat-card, .summary-card, .form-card, .calculator-card, .calculator-result, .detail-section, .detail-card, .detail-spec-item, .equipment-card, .equipment-model, .combination-panel, .estimate-panel, .estimate-result, .settings-card, .workflow-card, .project-card, .project-list-item, .report-card, .report-section, .report-analysis, .chart-card, .fleet-summary-item, .fleet-scenario-card, .fleet-equipment-item, .fleet-recommendation-card, .parameter-helper, #earthworkFactorHelper, .history-item, .dashboard-quick-item, .dashboard-project-card) {
+        background: #1b2b3d !important; border-color: #40536a !important; color: #e5edf5 !important;
+    }
+    html.excabase-dark body :is(h1, h2, h3, h4, h5, p, label, legend, dt, dd, summary, small, strong, span, li) { color: #e5edf5 !important; }
+    html.excabase-dark body :is(.tagline, .menu-title, .report-note, .estimate-note, .calculation-status, .fleet-status, .parameter-condition-description) { color: #b6c6d8 !important; }
+    html.excabase-dark body :is(.dashboard-project-panel, .dashboard-quick-panel, .dashboard-live-project, .dashboard-empty-project, .project-list-card, .equipment-checkbox-grid label, .detail-meta > span, .detail-list li) { background: #1b2b3d !important; border-color: #40536a !important; }
+    html.excabase-dark body :is(.stat-icon, .dashboard-quick-icon, .dashboard-live-badge, .dashboard-empty-icon) { background: #3c3925 !important; color: #ffe18b !important; }
+    html.excabase-dark body :is(.dashboard-view-all, .detail-meta span, .project-nav-btn, .report-technical-card, .report-conclusion-card, .report-completion-card, .report-completion-checklist span) { background: #24374d !important; color: #e5edf5 !important; border-color: #40536a !important; }
+    html.excabase-dark body .estimate-equipment-footer { background: #24374d !important; border-color: #40536a !important; }
+    html.excabase-dark body a { color: #f3cf68; }
+    html.excabase-dark body .sidebar .menu a { color: #cfdae7 !important; }
+    html.excabase-dark body .sidebar .menu a:is(:hover, .active) { background: #38402c !important; color: #ffe18b !important; }
+    html.excabase-dark body .sidebar .logo span { color: #f4c64e !important; }
+    /* Inputs, disabled controls, and actions */
+    html.excabase-dark body :is(input, select, textarea, option) { background: #122133 !important; color: #e5edf5 !important; border-color: #536a83 !important; }
+    html.excabase-dark body input::placeholder, html.excabase-dark body textarea::placeholder { color: #a6b8ca !important; opacity: 1; }
+    html.excabase-dark body :is(input, select, textarea):disabled { background: #25364a !important; color: #c7d3e0 !important; }
+    html.excabase-dark body button { background: #294660 !important; color: #f1f5f9 !important; border-color: #536a83 !important; }
+    html.excabase-dark body button:hover { background: #355873 !important; }
+    html.excabase-dark body :is(.btn-primary, .submit-button, .primary-button, .fleet-btn-primary, .settings-button:not(.settings-button-danger), .estimate-actions button[type="submit"]) { background: #edbc39 !important; color: #14283c !important; border-color: #edbc39 !important; }
+    html.excabase-dark body :is(.settings-button-danger, .project-delete-button, .delete-button) { background: #382533 !important; color: #ffb8b8 !important; border-color: #b77979 !important; }
+    html.excabase-dark body button :is(span, strong) { color: inherit !important; }
+    html.excabase-dark body :is(input, select, textarea, button):focus-visible { outline-color: #f4c64e !important; }
+    /* Results, summaries, project stages, and helper panels */
+    html.excabase-dark body :is(.result-box, .detail-note, .detail-intro, .detail-meta, .fleet-evaluation-panel, .fleet-card-total, .fleet-recommendation-stats > div, .report-selected, .report-empty, .estimate-summary, .estimate-result-badges span, .estimate-result-cost, .report-completion, .dashboard-stat-card, .dashboard-project-summary, #earthworkFactorPreview, #projectLockedNotice) { background: #24374d !important; border-color: #536a83 !important; color: #e5edf5 !important; }
+    html.excabase-dark body :is(.form-section-title, .page-heading h1, .equipment-option:has(:checked), .estimate-options label:has(:checked), .workflow-status, .step-number, .settings-icon, .equipment-detail-btn) { background: #3c3925 !important; color: #ffe18b !important; border-color: #8b743d !important; }
+    html.excabase-dark body :is(.estimate-result-header, .catalog-models, .settings-danger-zone) { border-color: #40536a !important; }
+    /* Tables, including generated and inline-colored report/simulation cells */
+    html.excabase-dark body table { background: #1b2b3d !important; color: #e5edf5 !important; }
+    html.excabase-dark body :is(th, td) { background: #1b2b3d !important; color: #e5edf5 !important; border-color: #40536a !important; }
+    html.excabase-dark body thead th { background: #293d54 !important; color: #f1f5f9 !important; }
+    html.excabase-dark body :is(.selected-scenario, .report-equipment-total > *, .estimate-result-cost > *) { background: #314358 !important; color: #ffe18b !important; }
+    /* Keep graph colors and geometry; improve labels and axes only. */
+    html.excabase-dark body :is(.report-y-axis, .report-column-label, .report-column-value, .report-dual-legend) { color: #dbe7f3 !important; border-color: #536a83 !important; }
+    html.excabase-dark body .report-column-bar[style*="#17324d"] { background: #779dc5 !important; }
+    html.excabase-dark body :is(.error-message, [style*="color: #b91c1c"]) { color: #ffabab !important; }
+    html.excabase-dark body [style*="color: #15803d"] { color: #96e6b2 !important; }
+}

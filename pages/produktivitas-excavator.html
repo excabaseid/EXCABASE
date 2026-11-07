@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Produktivitas Excavator | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/standalone-productivity.css">
+    <link rel="stylesheet" href="../css/productivity-parameter-helper.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/results-ui.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body class="standalone-productivity" data-results-ui>
+<div class="container">
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+        <nav class="menu" aria-label="Navigasi utama"></nav>
+    </aside>
+
+    <main class="main">
+        <header class="page-header">
+            <div>
+                <h1 class="excabase-page-title">Kalkulator Produktivitas Excavator</h1>
+                <p>Estimasi produktivitas berdasarkan kapasitas bucket, waktu siklus, dan efisiensi kerja.</p>
+            </div>
+            
+        </header>
+
+        <div data-standalone-calculator="excavator"></div>
+
+        <section class="content-section">
+            <h2>Rumus yang Digunakan</h2>
+            <p>Q = (V × FF × 3600 × E) / CT</p>
+            <p>V = kapasitas bucket (m³), FF = bucket fill factor,
+                E = efisiensi kerja, dan CT = waktu siklus (detik).</p>
+            <p class="detail-note">Ini merupakan estimasi awal. Produktivitas aktual dipengaruhi
+                jenis material, kondisi lokasi, metode kerja, dan konfigurasi alat.</p>
+        </section>
+    </main>
+</div>
+
+    
+    <script src="../js/equipment-data.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/productivity-reference-data.js"></script>
+<script src="../js/productivity-parameter-methods.js"></script>
+<script src="../js/productivity-parameter-helper.js"></script>
+<script src="../js/productivity-calculator.js"></script>
+    <script src="../js/standalone-productivity.js"></script>
+
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/results-ui.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

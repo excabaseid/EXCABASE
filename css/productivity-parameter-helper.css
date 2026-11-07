@@ -1,0 +1,11 @@
+.parameter-helper { margin-top: 20px; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; }
+.parameter-helper summary { padding: 14px; cursor: pointer; font-weight: 600; color: #18364d; }
+.parameter-helper-content { padding: 0 14px 16px; display: grid; gap: 14px; min-width: 0; }
+.parameter-helper-fields { display: grid; gap: 12px; min-width: 0; }
+.parameter-helper label { display: grid; gap: 8px; min-width: 0; font-size: 14px; }
+.parameter-helper input, .parameter-helper select { width: 100%; min-width: 0; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; }
+.parameter-helper p, .parameter-helper a { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.parameter-helper button:disabled { opacity: .5; cursor: not-allowed; }
+.parameter-helper .calculator-buttons { flex-wrap: wrap; margin: 0; }
+.parameter-helper .parameter-condition-description { display: block; color: #64748b; font-size: 12px; font-weight: 400; line-height: 1.6; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .parameter-helper .calculator-buttons button { width: 100%; } }

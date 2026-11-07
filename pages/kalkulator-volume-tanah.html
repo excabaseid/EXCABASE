@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Volume Tanah | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/earthwork-factor-helper.css">
+    <style>
+    
+body {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+
+    .sidebar {
+        flex: 0 0 260px;
+        width: 260px;
+        min-height: 100vh;
+    }
+
+    
+.main-content {
+    flex: 1 1 0%;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    padding: 28px;
+    box-sizing: border-box;
+}
+
+/* Layout Mandiri mengikuti susunan proyek tanpa mengubah aturan mode proyek. */
+body:not(.earthwork-project-mode) .earthwork-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 24px;
+    align-items: start;
+}
+
+body:not(.earthwork-project-mode) .earthwork-input-panel .calculator-grid {
+    display: block;
+}
+
+body:not(.earthwork-project-mode) .earthwork-input-panel .calculator-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+body:not(.earthwork-project-mode) .earthwork-result-panel .calculator-result {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+@media (max-width: 1100px) {
+    body:not(.earthwork-project-mode) .earthwork-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    body:has(> .sidebar):has(> .main-content) {
+        display: block;
+    }
+}
+
+@media (max-width: 600px) {
+    body:not(.earthwork-project-mode) .earthwork-input-panel .calculator-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+    @media (max-width: 768px) {
+        body {
+            display: block;
+        }
+
+        .sidebar {
+            width: 100%;
+            min-height: auto;
+        }
+
+        .main-content {
+            width: 100%;
+            padding: 18px;
+        }
+    }
+</style>
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/results-ui.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body data-results-ui>
+<script>
+    if (new URLSearchParams(window.location.search).get("fromProject") === "1") {
+        document.body.classList.add("earthwork-project-mode");
+    }
+</script>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+        <nav class="menu">
+            <div class="menu-title">OVERVIEW</div>
+            <a href="../index.html">▦ Dashboard</a>
+
+            <div class="menu-title">PROYEK</div>
+            <a href="buat-proyek.html">＋ Buat Proyek</a>
+            <a href="proyek-aktif.html">▤ Proyek Aktif</a>
+            <a href="riwayat-proyek.html">◷ Riwayat Proyek</a>
+
+            <div class="menu-title">PERHITUNGAN MANDIRI</div>
+            <a href="kalkulator-volume-tanah.html" class="active">▤ Pekerjaan Tanah</a>
+            <a href="produktivitas.html">∑ Produktivitas</a>
+            <a href="estimasi-proyek.html">▧ Estimasi Biaya</a>
+
+            <div class="menu-title">REFERENSI ALAT</div>
+            <a href="katalog.html">▣ Katalog Alat Berat</a>
+            <a href="perbandingan-alat.html">⇄ Perbandingan Alat</a>
+
+            <div class="menu-title">PENGATURAN</div>
+            <a href="pengaturan.html">⚙ Pengaturan</a>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <header class="page-header">
+            <h1 class="excabase-page-title">Kalkulator Volume Tanah</h1>
+            <p>Hitung perubahan volume tanah dari kondisi asli, lepas, dan setelah pemadatan.</p>
+        </header>
+
+        <section class="calculator-card" id="earthworkCalculatorCard">
+    <div class="earthwork-layout">
+
+        <div class="earthwork-input-panel">
+            <h2>Data Perhitungan</h2>
+
+            <div class="calculator-grid">
+                <div class="calculator-form">
+
+    <!-- VOLUME TANAH ASLI -->
+    <div>
+        <label for="earthworkBCM">Volume Tanah Asli (BCM) — m³</label>
+        <input
+            type="number"
+            id="earthworkBCM"
+            placeholder="Masukkan volume tanah asli"
+            min="0.1"
+            step="any"
+            required
+        >
+    </div>
+
+    <!-- JENIS MATERIAL TANAH -->
+    <div>
+        <label for="earthworkMaterial">Jenis Material Tanah</label>
+        <select id="earthworkMaterial" required>
+            <option value="">Pilih jenis material</option>
+            <option value="tanah-biasa">Tanah biasa</option>
+            <option value="tanah-lempung">Tanah lempung</option>
+            <option value="tanah-berpasir">Tanah berpasir</option>
+            <option value="tanah-keras">Tanah keras</option>
+            <option value="batuan">Batuan</option>
+            <option value="lainnya">Lainnya</option>
+        </select>
+    </div>
+
+    <!-- SWELL FACTOR -->
+    <div>
+        <label for="earthworkSwell">Swell Factor (%)</label>
+        <input
+            type="number"
+            id="earthworkSwell"
+            placeholder="Masukkan swell factor"
+            min="0"
+            step="any"
+            required
+        >
+    </div>
+
+    <!-- SHRINKAGE FACTOR -->
+    <div>
+        <label for="earthworkShrinkage">Shrinkage Factor (%)</label>
+        <input
+            type="number"
+            id="earthworkShrinkage"
+            placeholder="Masukkan shrinkage factor"
+            min="0"
+            max="99.99"
+            step="any"
+            required
+        >
+    </div>
+
+    <!-- SUMBER PARAMETER -->
+    <div>
+        <label for="earthworkParameterSource">Sumber Parameter</label>
+        <select id="earthworkParameterSource" required>
+            <option value="">Pilih sumber parameter</option>
+            <option value="pengujian-laboratorium">Pengujian laboratorium</option>
+            <option value="data-proyek">Data proyek / spesifikasi</option>
+            <option value="referensi-teknis">Referensi teknis</option>
+            <option value="asumsi-estimasi">Asumsi estimasi awal</option>
+            <option value="lainnya">Lainnya</option>
+        </select>
+    </div>
+
+    <!-- KETERANGAN SUMBER -->
+    <div>
+        <label for="earthworkSourceNote">
+            Keterangan Sumber / Referensi
+        </label>
+        <input
+            type="text"
+            id="earthworkSourceNote"
+            placeholder="Contoh: laporan uji tanah atau nama referensi"
+        >
+    
+    </div>
+
+</div> <!-- Penutup calculator-form -->
+</div> <!-- Penutup calculator-grid -->
+
+<div class="calculator-buttons">
+    <button id="calculateEarthworkBtn" type="button">Hitung Volume</button>
+    <button id="resetEarthworkBtn" type="button">Reset</button>
+</div>
+
+</div> <!-- Penutup earthwork-input-panel -->
+
+
+        <div class="earthwork-result-panel">
+            <div class="calculator-result">
+                <span>Hasil Konversi Volume Tanah</span>
+
+                <div id="earthworkCalculationStatus">
+                    Masukkan data, lalu klik Hitung Volume.
+                </div>
+
+                <div id="earthworkCalculationDetails" class="detail-note"></div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+        
+<!-- Navigasi proyek dirender oleh project-navigation.js hanya saat fromProject=1. -->
+
+    </div>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const fromProject = params.get("fromProject");
+
+    if (fromProject !== "1") return;
+
+    try {
+        const project = JSON.parse(
+            localStorage.getItem("excabase_active_project")
+        );
+
+        if (!project) return;
+
+        // Muat BCM dari data proyek
+        const bcmInput = document.getElementById("earthworkBCM");
+
+        if (project.soilVolumeBCM !== undefined && bcmInput) {
+            bcmInput.value = project.soilVolumeBCM;
+        }
+
+        // Muat hasil perhitungan terakhir jika tersedia
+        const result = project.results?.earthwork;
+
+        if (result) {
+            const swellInput = document.getElementById("earthworkSwell");
+            const shrinkageInput = document.getElementById("earthworkShrinkage");
+            const status = document.getElementById("earthworkCalculationStatus");
+            const details = document.getElementById("earthworkCalculationDetails");
+
+            if (swellInput) swellInput.value = result.swellFactor;
+            if (shrinkageInput) shrinkageInput.value = result.shrinkageFactor;
+
+            if (status && details) {
+                status.textContent = "Hasil perhitungan terakhir berhasil dimuat.";
+
+                details.innerHTML = `
+                    <h3>1. Bank Cubic Meter (BCM)</h3>
+                    <p>Volume tanah dalam kondisi asli sebelum digali.</p>
+                    <p><strong>${Number(result.bcm).toFixed(2)} m³</strong></p>
+
+                    <h3>2. Loose Cubic Meter (LCM)</h3>
+                    <p>LCM = BCM × (1 + Swell Factor)</p>
+                    <p><strong>${Number(result.lcm).toFixed(2)} m³</strong></p>
+
+                    <h3>3. Compacted Cubic Meter (CCM)</h3>
+                    <p>CCM = BCM × (1 − Shrinkage Factor)</p>
+                    <p><strong>${Number(result.ccm).toFixed(2)} m³</strong></p>
+
+                    <p><em>Catatan: faktor swell dan shrinkage bergantung pada jenis tanah serta kondisi penggalian dan pemadatan.</em></p>
+                `;
+            }
+        }
+    } catch (error) {
+        console.error("Data proyek gagal dimuat:", error);
+    }
+});
+</script>
+<script src="../js/project-storage.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/earthwork-factor-helper.js"></script>
+<script src="../js/project-lock.js"></script>
+<script src="../js/project-navigation.js"></script>
+<script src="../js/sidebar-manager.js"></script>
+
+<script src="../js/results-ui.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

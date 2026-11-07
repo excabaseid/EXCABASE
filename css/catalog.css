@@ -1,0 +1,35 @@
+/* Catalog-only card layout; shared equipment cards and master data are unchanged. */
+.catalog-page #equipmentGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.catalog-page #equipmentGrid .equipment-card { display: flex; flex-direction: column; min-width: 0; padding: 22px; box-sizing: border-box; }
+.catalog-page #equipmentGrid .equipment-icon { margin-bottom: 12px; }
+.catalog-page #equipmentGrid h3 { margin: 0 0 8px; }
+.catalog-page #equipmentGrid .equipment-card > p { margin: 0; line-height: 1.6; }
+.catalog-page .catalog-models { margin: 18px 0 0; padding: 14px 0 0; border-top: 1px solid #e5e7eb; }
+.catalog-page .catalog-models h4 { margin: 0 0 10px; color: #a16207; font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+.catalog-page .catalog-models ul { margin: 0 0 18px; padding-left: 18px; color: #475569; font-size: 14px; line-height: 1.6; }
+.catalog-page .catalog-models li { margin: 4px 0; overflow-wrap: anywhere; }
+.catalog-page #equipmentGrid .equipment-detail-btn { align-self: flex-start; margin-top: auto; }
+.catalog-page .content-section { container-type: inline-size; container-name: catalog-content; min-width: 0; }
+.catalog-page .stats-container { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.catalog-page .stats-container .stat-card { min-width: 0; padding: 20px; border: 1px solid #dfe6ed; border-top: 3px solid #f4b400; border-radius: 14px; background: #fff; box-shadow: 0 4px 18px rgba(18,52,77,.035); }
+.catalog-page .stats-container .stat-card:nth-child(2) { border-top-color: #12344d; }
+.catalog-page .stats-container h3 { margin: 0 0 10px; font-size: 13px; color: #64748b; }
+.catalog-page .stats-container p { margin: 0; font-size: 26px; font-weight: 750; color: #12344d; line-height: 1.4; overflow-wrap: anywhere; }
+.catalog-page .catalog-header { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; min-width: 0; }
+.catalog-page .catalog-header h2 { margin: 0; }
+.catalog-page .catalog-controls { display: flex; flex: 0 1 500px; flex-wrap: wrap; gap: 12px; min-width: 0; max-width: 100%; }
+.catalog-page .catalog-controls select { flex: 0 1 180px; min-width: 0; max-width: 100%; min-height: 44px; }
+.catalog-page #equipmentSearch { flex: 1 1 240px; width: auto; min-width: 0; max-width: 100%; min-height: 44px; }
+@container catalog-content (max-width: 880px) { .catalog-page #equipmentGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container catalog-content (max-width: 560px) { .catalog-page #equipmentGrid { grid-template-columns: minmax(0, 1fr); } }
+@media screen {
+    html.excabase-dark body.catalog-page:has(#equipmentGrid) .stats-container .stat-card:first-child { border-top-color: #f4b400 !important; }
+    html.excabase-dark body.catalog-page:has(#equipmentGrid) .stats-container .stat-card:nth-child(2) { border-top-color: #12344d !important; }
+}
+@media (max-width: 650px) {
+    body.catalog-page { flex-direction: column; }
+    body.catalog-page > .sidebar { flex: 0 0 auto; width: 100%; box-sizing: border-box; }
+    .catalog-page #equipmentGrid .equipment-card { padding: 20px; }
+    .catalog-page .catalog-controls, .catalog-page #equipmentSearch { width: 100%; min-width: 0; box-sizing: border-box; }
+}
+@media (max-width: 400px) { .catalog-page .stats-container { grid-template-columns: minmax(0, 1fr); } }

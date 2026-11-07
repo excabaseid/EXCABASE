@@ -1,0 +1,800 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyek Aktif | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        /* Layout halaman */
+        body {
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .sidebar {
+            flex: 0 0 260px;
+            width: 260px;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            margin-left: 0;
+        }
+
+        .project-page {
+            padding: 28px;
+        }
+
+        .page-heading {
+            margin-bottom: 24px;
+        }
+
+        .page-heading h1 {
+            margin: 0 0 8px;
+            color: var(--text-primary, #172033);
+        }
+
+        .page-heading p {
+            margin: 0;
+            color: var(--text-secondary, #64748b);
+            line-height: 1.6;
+        }
+
+        /* Ringkasan proyek */
+        .project-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: var(--card-bg, #ffffff);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .summary-label {
+            display: block;
+            color: var(--text-secondary, #64748b);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            display: block;
+            color: var(--text-primary, #172033);
+            font-size: 17px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        /* Tahapan analisis */
+        .workflow-heading {
+            margin-bottom: 16px;
+        }
+
+        .workflow-heading h2 {
+            margin: 0 0 7px;
+            color: var(--text-primary, #172033);
+            font-size: 21px;
+        }
+
+        .workflow-heading p {
+            margin: 0;
+            color: var(--text-secondary, #64748b);
+            line-height: 1.6;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .workflow-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: var(--card-bg, #ffffff);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 14px;
+            text-decoration: none;
+            color: inherit;
+            transition: 0.2s ease;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-2px);
+            border-color: #eab308;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 800;
+        }
+
+        .workflow-content h3 {
+            margin: 0 0 7px;
+            color: var(--text-primary, #172033);
+            font-size: 16px;
+        }
+
+        .workflow-content p {
+            margin: 0;
+            color: var(--text-secondary, #64748b);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .workflow-status {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Belum ada proyek */
+        .empty-state {
+            display: none;
+            max-width: 650px;
+            margin: 50px auto;
+            padding: 35px;
+            text-align: center;
+            background: var(--card-bg, #ffffff);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 16px;
+        }
+
+        .empty-state h2 {
+            margin-top: 0;
+            color: var(--text-primary, #172033);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary, #64748b);
+            line-height: 1.6;
+        }
+
+        .primary-button {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 12px 20px;
+            border-radius: 9px;
+            background: #eab308;
+            color: #172033;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1000px) {
+            .project-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .project-page {
+                padding: 18px;
+            }
+
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .project-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+/* ==========================================
+   EXCABASE - TOMBOL HAPUS PROYEK
+========================================== */
+
+.project-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+    padding: 14px 20px;
+    border: 1px solid #17324d;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #17324d;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.project-delete-button:hover {
+    background: #fef2f2;
+    border-color: #17324d;
+    transform: translateY(-2px);
+}
+
+.project-delete-button:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .project-delete-button {
+        margin-left: 8px;
+        padding: 12px;
+        font-size: 13px;
+    }
+}
+
+/* Only the six project-information cards, not earthwork/report summaries. */
+@media screen and (max-width: 430px) {
+    .project-page #projectContent > .project-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+    .project-page #projectContent > .project-summary > .summary-card {
+        min-width: 0;
+        min-height: 0;
+        height: auto;
+        padding: 10px 12px;
+        border-radius: 10px;
+        overflow: visible;
+    }
+    .project-page #projectContent > .project-summary > .summary-card::before {
+        height: 3px;
+        border-radius: 10px 10px 0 0;
+    }
+    .project-page #projectContent > .project-summary .summary-label {
+        margin-bottom: 5px;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+    .project-page #projectContent > .project-summary .summary-value {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.5;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}
+    </style>
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+        <nav class="menu">
+            <div class="menu-title">OVERVIEW</div>
+            <a href="../index.html">▦ Dashboard</a>
+
+            <div class="menu-title">PROYEK</div>
+            <a href="buat-proyek.html">＋ Buat Proyek</a>
+            <a href="proyek-aktif.html" class="active">▤ Proyek Aktif</a>
+        
+            <div class="menu-title">PERHITUNGAN MANDIRI</div>
+            <a href="kalkulator-volume-tanah.html">▤ Pekerjaan Tanah</a>
+            <a href="produktivitas.html">∑ Produktivitas</a>
+            <a href="estimasi-proyek.html">▧ Estimasi Proyek</a>
+
+            <div class="menu-title">REFERENSI ALAT</div>
+            <a href="katalog.html">▣ Katalog Alat Berat</a>
+            
+            <div class="menu-title">PENGATURAN</div>
+            <a href="pengaturan.html">⚙ Pengaturan</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="project-page">
+
+            <div class="page-heading">
+                <h1 class="excabase-page-title">Proyek Aktif</h1>
+                <p>Kelola tahapan analisis pekerjaan tanah dan kebutuhan alat berat dalam satu proyek.</p>
+            </div>
+
+            <!-- BANNER PROYEK AKTIF -->
+<section class="project-hero-banner">
+
+    <div class="project-hero-content">
+
+        <span class="project-hero-label">
+            EXCABASE PROJECT WORKSPACE
+        </span>
+
+        <h2>Kelola Proyek dengan Lebih Terarah.</h2>
+
+        <p>
+            Pantau informasi proyek, lanjutkan tahapan analisis,
+            dan optimalkan perencanaan alat berat.
+        </p>
+
+    </div>
+
+</section>
+<!-- DAFTAR PROYEK AKTIF -->
+<section class="project-list-section" id="projectListSection">
+
+    <div class="project-list-heading">
+        <div>
+            <h2>Daftar Proyek Aktif</h2>
+            <p>
+                Pilih proyek untuk melihat informasi dan
+                melanjutkan tahapan analisis.
+            </p>
+        </div>
+
+        <a href="buat-proyek.html" class="project-add-button">
+            + Buat Proyek Baru
+        </a>
+    </div>
+
+    <div class="project-list-grid" id="projectListGrid">
+        <!-- Kartu proyek akan ditampilkan melalui JavaScript -->
+    </div>
+
+</section>
+            <!-- EMPTY STATE -->
+            <section class="empty-state" id="emptyState">
+                <h2>Belum ada proyek aktif</h2>
+                <p>Buat proyek terlebih dahulu agar data dan tahapan analisis dapat ditampilkan di halaman ini.</p>
+                <a href="buat-proyek.html" class="primary-button">＋ Buat Proyek Baru</a>
+            </section>
+
+            <!-- PROJECT CONTENT -->
+            <div id="projectContent" style="display: none;">
+
+                <section class="project-summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Nama Proyek</span>
+                        <span class="summary-value" id="projectName">-</span>
+                    </div>
+
+                    <div class="summary-card">
+                        <span class="summary-label">Lokasi</span>
+                        <span class="summary-value" id="projectLocation">-</span>
+                    </div>
+
+                    <div class="summary-card">
+                        <span class="summary-label">Jenis Pekerjaan</span>
+                        <span class="summary-value" id="projectWorkType">-</span>
+                    </div>
+
+                    <div class="summary-card">
+                        <span class="summary-label">Volume Tanah (BCM)</span>
+                        <span class="summary-value" id="projectVolume">-</span>
+                    </div>
+
+                    <div class="summary-card">
+                        <span class="summary-label">Target Durasi</span>
+                        <span class="summary-value" id="projectTargetDays">-</span>
+                    </div>
+
+                    <div class="summary-card">
+                        <span class="summary-label">Jam Kerja per Hari</span>
+                        <span class="summary-value" id="projectWorkHours">-</span>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="workflow-heading">
+                        <!-- HASIL PEKERJAAN TANAH -->
+<section class="project-summary" id="earthworkResultSection" style="display: none;">
+    <div class="summary-card">
+        <span class="summary-label">Volume Asli (BCM)</span>
+        <span class="summary-value" id="projectEarthworkBCM">-</span>
+    </div>
+
+    <div class="summary-card">
+        <span class="summary-label">Volume Lepas (LCM)</span>
+        <span class="summary-value" id="projectEarthworkLCM">-</span>
+    </div>
+
+    <div class="summary-card">
+        <span class="summary-label">Volume Padat (CCM)</span>
+        <span class="summary-value" id="projectEarthworkCCM">-</span>
+    </div>
+
+    <div class="summary-card">
+        <span class="summary-label">Status Pekerjaan Tanah</span>
+        <span class="summary-value" id="projectEarthworkStatus">Belum dihitung</span>
+    </div>
+</section>
+                        <h2>Tahapan Analisis Proyek</h2>
+                        <p>Kerjakan tahapan berikut untuk menyusun analisis proyek secara berurutan.</p>
+                    </div>
+
+                    <div class="workflow-grid">
+
+                        <a href="kalkulator-volume-tanah.html?fromProject=1" class="workflow-card">
+                            <div class="step-number">01</div>
+                            <div class="workflow-content">
+                                <h3>Analisis Pekerjaan Tanah</h3>
+                                <p>Konversi volume tanah BCM, LCM, dan CCM serta analisis perubahan volume tanah.</p>
+                                <span class="workflow-status">Buka Perhitungan →</span>
+                            </div>
+                        </a>
+
+                        <a href="rekomendasi.html?fromProject=1" class="workflow-card">
+                            <div class="step-number">02</div>
+                            <div class="workflow-content">
+                                <h3>Opsi Alat Berat</h3>
+                                <div class="recommendation-summary" id="projectRecommendationSummary">
+                                    <p>Belum ada opsi alat berat.</p>
+                                </div>
+                                <span class="workflow-status">Buka Opsi →</span>
+                            </div>
+                        </a>
+
+                        <a href="produktivitas.html?fromProject=1" class="workflow-card">
+                            <div class="step-number">03</div>
+                            <div class="workflow-content">
+                                <h3>Produktivitas Alat Berat</h3>
+                                <p>Hitung produktivitas alat berdasarkan kapasitas, waktu siklus, dan efisiensi kerja.</p>
+                                <span class="workflow-status">Buka Perhitungan →</span>
+                            </div>
+                        </a>
+
+                        <a href="estimasi-proyek.html?fromProject=1" class="workflow-card">
+                            <div class="step-number">04</div>
+                            <div class="workflow-content">
+                                <h3>Estimasi Waktu dan Biaya</h3>
+                                <p>Perkirakan kebutuhan waktu, jumlah alat, dan biaya pelaksanaan pekerjaan.</p>
+                                <span class="workflow-status">Buka Estimasi →</span>
+                            </div>
+                        </a>
+                
+                        <a href="simulasi-armada.html?fromProject=1" class="workflow-card">
+                            <div class="step-number">05</div>
+                            <div class="workflow-content">
+                                <h3>Simulasi Armada</h3>
+                                <p>Simulasikan kombinasi alat dan evaluasi keseimbangan produktivitas armada.</p>
+                                <span class="workflow-status">Buka Simulasi →</span>
+                            </div>
+                        </a>
+
+                        <a href="analisis-laporan.html?fromProject=1" class="workflow-card">
+                            <div class="step-number">06</div>
+                            <div class="workflow-content">
+                                <h3>Analisis dan Laporan</h3>
+                                <p>Susun ringkasan hasil analisis dan laporan teknis proyek.</p>
+                                <span class="workflow-status">Buka Laporan →</span>
+                            </div>
+                        </a>
+
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let project = null;
+
+            try {
+                project = JSON.parse(localStorage.getItem("excabase_active_project"));
+            } catch (error) {
+                console.error("Data proyek tidak dapat dibaca:", error);
+            }
+
+            const emptyState = document.getElementById("emptyState");
+            const projectContent = document.getElementById("projectContent");
+
+            if (!project) {
+                emptyState.style.display = "block";
+                projectContent.style.display = "none";
+                return;
+            }
+
+            emptyState.style.display = "none";
+            projectContent.style.display = "block";
+
+            document.getElementById("projectName").textContent =
+                project.name || "-";
+
+            document.getElementById("projectLocation").textContent =
+                project.location || "-";
+
+            document.getElementById("projectWorkType").textContent =
+                project.workType || "-";
+
+            document.getElementById("projectVolume").textContent =
+                project.soilVolumeBCM !== undefined
+                    ? Number(project.soilVolumeBCM).toLocaleString("id-ID")
+                    : "-";
+                    document.getElementById("projectTargetDays").textContent =
+    project.targetDays !== undefined && project.targetDays !== ""
+        ? Number(project.targetDays).toLocaleString("id-ID") + " hari kerja"
+        : "-";
+
+document.getElementById("projectWorkHours").textContent =
+    project.workHoursPerDay !== undefined && project.workHoursPerDay !== ""
+        ? Number(project.workHoursPerDay).toLocaleString("id-ID") + " jam/hari"
+        : "-";
+                    // Tampilkan hasil pekerjaan tanah yang tersimpan
+const earthwork = project.results?.earthwork;
+const earthworkSection = document.getElementById("earthworkResultSection");
+
+if (earthwork) {
+    earthworkSection.style.display = "grid";
+
+    document.getElementById("projectEarthworkBCM").textContent =
+        Number(earthwork.bcm).toLocaleString("id-ID", {
+            maximumFractionDigits: 2
+        }) + " m³";
+
+    document.getElementById("projectEarthworkLCM").textContent =
+        Number(earthwork.lcm).toLocaleString("id-ID", {
+            maximumFractionDigits: 2
+        }) + " m³";
+
+    document.getElementById("projectEarthworkCCM").textContent =
+        Number(earthwork.ccm).toLocaleString("id-ID", {
+            maximumFractionDigits: 2
+        }) + " m³";
+
+    document.getElementById("projectEarthworkStatus").textContent =
+        "Sudah dihitung";
+}
+        });
+    </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const summary = document.getElementById("projectRecommendationSummary");
+
+    if (!summary) return;
+
+    summary.innerHTML = `
+        <p>Pilihan alat berat berdasarkan jenis pekerjaan dan karakteristik material proyek.</p>
+    `;
+});
+    
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const projectListGrid = document.getElementById("projectListGrid");
+    const projectListSection = document.getElementById("projectListSection");
+    const projectContent = document.getElementById("projectContent");
+    const emptyState = document.getElementById("emptyState");
+
+    if (!projectListGrid) return;
+
+    let projects = [];
+
+    try {
+        const savedProjects = JSON.parse(
+            localStorage.getItem("excabase_projects") || "[]"
+        );
+
+        if (Array.isArray(savedProjects)) {
+            projects = savedProjects;
+        }
+
+        // Memasukkan proyek lama jika belum ada dalam daftar
+        const activeProject = JSON.parse(
+            localStorage.getItem("excabase_active_project") || "null"
+        );
+
+        if (activeProject) {
+            const existingIndex = projects.findIndex(function (item) {
+                return String(item.id) === String(activeProject.id);
+            });
+
+            if (existingIndex === -1) {
+                projects.push(activeProject);
+            } else {
+                // Gunakan data terbaru dari proyek aktif
+                projects[existingIndex] = activeProject;
+            }
+        }
+
+        localStorage.setItem(
+            "excabase_projects",
+            JSON.stringify(projects)
+        );
+
+    } catch (error) {
+        console.error("Gagal membaca daftar proyek:", error);
+        projectListGrid.textContent =
+            "Data proyek tidak dapat dibaca. Periksa penyimpanan browser.";
+        return;
+    }
+
+    // Periksa apakah pengguna sedang membuka detail proyek
+const params = new URLSearchParams(window.location.search);
+const selectedProjectId = params.get("project");
+
+if (selectedProjectId !== null) {
+
+    const selectedProject = projects.find(function (item) {
+        return String(item.id) === selectedProjectId;
+    });
+
+    if (selectedProject) {
+        localStorage.setItem(
+            "excabase_active_project",
+            JSON.stringify(selectedProject)
+        );
+
+        // Detail ditampilkan setelah data proyek terpilih dimuat
+        projectListSection.style.display = "none";
+
+        // Jalankan kembali pemuatan detail proyek yang sudah ada
+        if (!sessionStorage.getItem("excabase_detail_reload")) {
+            sessionStorage.setItem("excabase_detail_reload", "1");
+            window.location.reload();
+            return;
+        }
+
+        sessionStorage.removeItem("excabase_detail_reload");
+
+        projectContent.style.display = "block";
+        emptyState.style.display = "none";
+        return;
+    }
+}
+
+// Tampilan awal hanya memperlihatkan daftar proyek
+projectContent.style.display = "none";
+
+    if (projects.length === 0) {
+        projectListSection.style.display = "none";
+        emptyState.style.display = "block";
+        return;
+    }
+
+    emptyState.style.display = "none";
+    projectListSection.style.display = "block";
+
+    // Menampilkan setiap proyek
+    projects.forEach(function (project) {
+
+        const card = document.createElement("div");
+        card.className = "project-list-card";
+
+        const name = document.createElement("h3");
+        name.textContent = project.name || "Proyek Tanpa Nama";
+
+        const location = document.createElement("p");
+        location.textContent = "Lokasi: " + (project.location || "-");
+
+        const workType = document.createElement("p");
+        workType.textContent =
+            "Jenis Pekerjaan: " + (project.workType || "-");
+
+        const volume = document.createElement("p");
+        volume.textContent =
+            "Volume Tanah: " +
+            (Number.isFinite(Number(project.soilVolumeBCM))
+                ? Number(project.soilVolumeBCM).toLocaleString("id-ID") + " BCM"
+                : "-");
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "project-open-button";
+        button.textContent = "Buka Proyek →";
+
+        // Membuka proyek yang dipilih
+button.addEventListener("click", function () {
+
+    // Simpan proyek terpilih sebagai proyek aktif
+    localStorage.setItem(
+        "excabase_active_project",
+        JSON.stringify(project)
+    );
+
+    // Buka halaman detail proyek
+    window.location.href =
+        "proyek-aktif.html?project=" + encodeURIComponent(project.id);
+
+});
+
+
+        // Tombol Hapus Proyek
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "project-delete-button";
+        deleteButton.textContent = "🗑 Hapus Proyek";
+
+        deleteButton.addEventListener("click", function () {
+            const confirmation = confirm(
+                `Yakin ingin menghapus proyek "${project.name || project.nama || "ini"}"?\n\nSeluruh data perhitungan proyek ini akan dihapus dan tidak dapat dikembalikan.`
+            );
+
+            if (!confirmation) return;
+
+            // Ambil seluruh proyek tersimpan
+            const projects = JSON.parse(
+                localStorage.getItem("excabase_projects") || "[]"
+            );
+
+            // Hapus hanya proyek yang dipilih
+            const updatedProjects = projects.filter(function (item) {
+                return String(item.id) !== String(project.id);
+            });
+
+            localStorage.setItem(
+                "excabase_projects",
+                JSON.stringify(updatedProjects)
+            );
+
+            // Bersihkan proyek aktif jika proyek tersebut yang dihapus
+            const activeProject = JSON.parse(
+                localStorage.getItem("excabase_active_project") || "null"
+            );
+
+            if (
+                activeProject &&
+                String(activeProject.id) === String(project.id)
+            ) {
+                localStorage.removeItem("excabase_active_project");
+            }
+
+            // Muat ulang daftar proyek
+            window.location.reload();
+        });
+
+
+        card.appendChild(name);
+        card.appendChild(location);
+        card.appendChild(workType);
+        card.appendChild(volume);
+        card.appendChild(button);
+        card.appendChild(deleteButton);
+
+        projectListGrid.appendChild(card);
+    });
+
+});
+</script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kombinasi Alat Berat | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/standalone-productivity.css">
+    <link rel="stylesheet" href="../css/productivity-parameter-helper.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/results-ui.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body class="standalone-productivity" data-results-ui>
+<div class="container">
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+        <nav class="menu" aria-label="Navigasi utama"></nav>
+    </aside>
+    <main class="main">
+        <header class="page-header">
+            <h1 class="excabase-page-title">Kombinasi Alat Berat</h1>
+            <p>Pilih beberapa alat dan hitung produktivitas masing-masing secara mandiri.</p>
+        </header>
+        <form class="combination-panel" id="combinationForm">
+            <h2>Pilihan Alat Berat</h2>
+            <fieldset class="equipment-options">
+                <legend>Pilih satu atau lebih jenis alat</legend>
+                <label class="equipment-option"><input type="checkbox" name="equipment" value="excavator"> Excavator</label>
+                <label class="equipment-option"><input type="checkbox" name="equipment" value="dumptruck"> Dump Truck</label>
+                <label class="equipment-option"><input type="checkbox" name="equipment" value="wheelloader"> Wheel Loader</label>
+                <label class="equipment-option"><input type="checkbox" name="equipment" value="motorgrader"> Motor Grader</label>
+                <label class="equipment-option"><input type="checkbox" name="equipment" value="bulldozer"> Bulldozer</label>
+                <label class="equipment-option"><input type="checkbox" name="equipment" value="compactor"> Compactor / Roller</label>
+            </fieldset>
+            <button type="submit" id="applyCombination">Tampilkan Kalkulator</button>
+            <p class="combination-status" id="combinationStatus" role="status" aria-live="polite">Pilih alat, lalu tampilkan kalkulator. Pilihan dapat diubah kapan saja.</p>
+        </form>
+        <div id="combinationCalculators"></div>
+    </main>
+</div>
+<script src="../js/equipment-data.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/productivity-reference-data.js"></script>
+<script src="../js/productivity-parameter-methods.js"></script>
+<script src="../js/productivity-parameter-helper.js"></script>
+<script src="../js/productivity-calculator.js"></script>
+<script src="../js/combination-productivity.js"></script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/results-ui.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

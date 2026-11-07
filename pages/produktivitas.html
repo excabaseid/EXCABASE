@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Produktivitas | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+    body {
+        display: flex;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .sidebar {
+        flex: 0 0 260px;
+        width: 260px;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        min-width: 0;
+        margin-left: 0;
+        padding: 28px;
+    }
+
+    #productivityEquipmentGrid > .equipment-card[href="produktivitas-kombinasi.html"] {
+        grid-column: 1 / -1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 768px) {
+        body:has(> .sidebar):has(> .main-content) {
+            display: block;
+        }
+
+        .sidebar {
+            width: 100%;
+            min-height: auto;
+        }
+
+        .main-content {
+            width: 100%;
+            padding: 18px;
+        }
+    }
+</style>
+    <link rel="stylesheet" href="../css/productivity-parameter-helper.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/equipment-image-cards.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/results-ui.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body data-results-ui>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+        <nav class="menu">
+            <div class="menu-title">OVERVIEW</div>
+            <a href="../index.html">▦ Dashboard</a>
+
+            <div class="menu-title">PROYEK</div>
+            <a href="buat-proyek.html">＋ Buat Proyek</a>
+            <a href="proyek-aktif.html">▤ Proyek Aktif</a>
+            <a href="riwayat-proyek.html">◷ Riwayat Proyek</a>
+
+            <div class="menu-title">PERHITUNGAN MANDIRI</div>
+            <a href="kalkulator-volume-tanah.html">▤ Pekerjaan Tanah</a>
+            <a href="produktivitas.html" class="active">∑ Produktivitas</a>
+            <a href="estimasi-proyek.html">▧ Estimasi Biaya</a>
+
+            <div class="menu-title">REFERENSI ALAT</div>
+            <a href="katalog.html">▣ Katalog Alat Berat</a>
+            <a href="perbandingan-alat.html">⇄ Perbandingan Alat</a>
+
+            <div class="menu-title">PENGATURAN</div>
+            <a href="pengaturan.html">⚙ Pengaturan</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="excabase-page-title">Kalkulator Produktivitas</h1>
+            <p>Pilih jenis alat berat untuk melakukan analisis produktivitas.</p>
+        </div>
+
+        <!-- MODE MANDIRI: KARTU PILIHAN ALAT -->
+<div class="equipment-grid" id="productivityEquipmentGrid">
+
+    <a href="produktivitas-excavator.html" class="equipment-card equipment-image-card equipment-card--excavator">
+        <h3>Excavator</h3>
+        <p>Hitung produktivitas berdasarkan kapasitas bucket dan waktu siklus.</p>
+        <span>Buka Kalkulator →</span>
+    </a>
+
+    <a href="produktivitas-dumptruck.html" class="equipment-card equipment-image-card equipment-card--dumptruck">
+        <h3>Dump Truck</h3>
+        <p>Hitung produktivitas berdasarkan kapasitas angkut dan waktu siklus.</p>
+        <span>Buka Kalkulator →</span>
+    </a>
+
+    <a href="produktivitas-wheelloader.html" class="equipment-card equipment-image-card equipment-card--wheelloader">
+        <h3>Wheel Loader</h3>
+        <p>Hitung produktivitas berdasarkan kapasitas bucket dan waktu siklus.</p>
+        <span>Buka Kalkulator →</span>
+    </a>
+
+    <a href="produktivitas-motorgrader.html" class="equipment-card equipment-image-card equipment-card--motorgrader">
+        <h3>Motor Grader</h3>
+        <p>Hitung produktivitas pekerjaan perataan berdasarkan luas kerja.</p>
+        <span>Buka Kalkulator →</span>
+    </a>
+
+    <a href="produktivitas-bulldozer.html" class="equipment-card equipment-image-card equipment-card--bulldozer">
+        <h3>Bulldozer</h3>
+        <p>Hitung produktivitas berdasarkan kapasitas blade dan waktu siklus.</p>
+        <span>Buka Kalkulator →</span>
+    </a>
+
+    <a href="produktivitas-compactor.html" class="equipment-card equipment-image-card equipment-card--compactor">
+        <h3>Compactor / Roller</h3>
+        <p>Hitung produktivitas pemadatan berdasarkan lebar dan kecepatan kerja.</p>
+        <span>Buka Kalkulator →</span>
+    </a>
+
+
+    <a href="produktivitas-kombinasi.html" class="equipment-card equipment-image-card equipment-card--combination">
+        <h3>Kombinasi Alat Berat</h3>
+        <p>Pilih beberapa jenis alat dan hitung produktivitas masing-masing dalam satu halaman.</p>
+        <span>Buka Kombinasi Alat →</span>
+    </a>
+</div>
+
+<!-- MODE PROYEK: KALKULATOR GABUNGAN -->
+<div id="projectProductivityCalculators"></div>
+
+        <a href="../index.html" class="back-link">← Kembali ke Dashboard</a>
+    </main>
+<script src="../js/equipment-data.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const fromProject = params.get("fromProject") === "1";
+
+    // Mode mandiri: tetap tampilkan semua kartu alat
+    if (!fromProject) return;
+
+    const grid = document.getElementById("productivityEquipmentGrid");
+    const calculatorContainer = document.getElementById(
+        "projectProductivityCalculators"
+    );
+
+    if (!grid || !calculatorContainer) return;
+
+    try {
+        const project = JSON.parse(
+            localStorage.getItem("excabase_active_project")
+        );
+
+        const equipmentOptions =
+            project?.results?.recommendation?.equipment;
+
+        if (!equipmentOptions) {
+            calculatorContainer.innerHTML = `
+                <p class="empty-state">
+                    Belum ada Opsi Alat Berat.
+                    Silakan buka halaman Opsi Alat Berat terlebih dahulu.
+                </p>
+            `;
+            grid.style.display = "none";
+            return;
+        }
+
+        const equipmentList = equipmentOptions
+            .toLowerCase()
+            .replace(/,\s*dan\s*/g, ",")
+            .replace(/\s+dan\s+/g, ",")
+            .split(",")
+            .map(item => item.trim())
+            .filter(Boolean);
+
+        const calculatorFiles = {
+            "excavator": "produktivitas-excavator.html",
+            "dump truck": "produktivitas-dumptruck.html",
+            "wheel loader": "produktivitas-wheelloader.html",
+            "motor grader": "produktivitas-motorgrader.html",
+            "bulldozer": "produktivitas-bulldozer.html",
+            "compactor": "produktivitas-compactor.html",
+            "roller": "produktivitas-compactor.html"
+        };
+
+        const selectedCalculators = [];
+
+        equipmentList.forEach(function (equipment) {
+            const matchedKey = Object.keys(calculatorFiles).find(function (key) {
+                return equipment.includes(key) || key.includes(equipment);
+            });
+
+            if (matchedKey) {
+                const file = calculatorFiles[matchedKey];
+
+                if (!selectedCalculators.includes(file)) {
+                    selectedCalculators.push(file);
+                }
+            }
+        });
+
+        if (selectedCalculators.length === 0) {
+            calculatorContainer.innerHTML = `
+                <p class="empty-state">
+                    Opsi alat belum cocok dengan kalkulator yang tersedia.
+                </p>
+            `;
+            grid.style.display = "none";
+            return;
+        }
+
+        grid.style.display = "none";
+
+        
+calculatorContainer.innerHTML = `
+    <div class="page-header">
+        <p>Alat berat yang dipilih untuk proyek: ${equipmentOptions}</p>
+    </div>
+
+    <div id="projectCalculatorList"></div>
+`;
+
+
+        const calculatorList = document.getElementById("projectCalculatorList");
+
+        selectedCalculators.forEach(function (file) {
+            const section = document.createElement("section");
+            section.className = "detail-section";
+            section.style.marginBottom = "28px";
+
+            const title = file
+                .replace("produktivitas-", "")
+                .replace(".html", "")
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, char => char.toUpperCase());
+
+            section.innerHTML = `
+                <h2>${title}</h2>
+                <p>Kalkulator ${title} akan dimuat di bagian ini.</p>
+            `;
+
+            calculatorList.appendChild(section);
+        });
+
+    } catch (error) {
+        console.error("Gagal memuat kalkulator produktivitas proyek:", error);
+
+        calculatorContainer.innerHTML = `
+            <p class="empty-state">
+                Terjadi kesalahan saat memuat kalkulator produktivitas proyek.
+            </p>
+        `;
+    }
+});
+</script>
+<script src="../js/project-storage.js"></script>
+<script src="../js/productivity-reference-data.js"></script>
+<script src="../js/productivity-parameter-methods.js"></script>
+<script src="../js/productivity-parameter-helper.js"></script>
+<script src="../js/productivity-calculator.js"></script>
+<script src="../js/project-productivity.js"></script>
+<script src="../js/project-lock.js"></script>
+<script src="../js/project-navigation.js"></script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/results-ui.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+#earthworkFactorHelper { margin-top: 20px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; }
+#earthworkFactorHelper summary { padding: 16px; cursor: pointer; font-weight: 700; color: #12344d; line-height: 1.5; }
+#earthworkFactorHelper summary:focus-visible { outline: 3px solid #f4b400; outline-offset: 3px; border-radius: 8px; }
+#earthworkFactorHelper .earthwork-factor-content { display: grid; gap: 12px; padding: 0 16px 16px; min-width: 0; }
+#earthworkFactorHelper .earthwork-help-block { min-width: 0; padding: 16px; border: 1px solid #dfe6ed; border-radius: 10px; background: #f5f8fb; }
+#earthworkFactorHelper .earthwork-help-selection { background: #fff; border-top: 3px solid #f4b400; }
+#earthworkFactorHelper .earthwork-help-block h3 { margin: 0 0 10px; font-size: 14px; color: #12344d; line-height: 1.5; }
+#earthworkFactorHelper .earthwork-help-block p { margin: 8px 0 0; }
+#earthworkFactorHelper .earthwork-help-selection label { display: block; margin: 14px 0 8px; font-size: 13px; font-weight: 600; }
+#earthworkFactorHelper .earthwork-help-conversion { background: #fff9e8; }
+#earthworkFactorHelper .earthwork-help-formula { padding: 10px 12px; border-left: 3px solid #12344d; border-radius: 6px; background: #fff; font-variant-numeric: tabular-nums; }
+#earthworkFactorHelper .earthwork-help-source a { display: block; color: #12344d; text-underline-offset: 3px; }
+#earthworkFactorHelper select { width: 100%; min-width: 0; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; }
+#earthworkFactorHelper p, #earthworkFactorHelper a, #earthworkFactorHelper small { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+#earthworkFactorHelper small { display: block; margin-top: 8px; color: #64748b; }
+#earthworkFactorPreview { padding: 12px; background: #fff; border: 1px solid #dfe6ed; border-radius: 8px; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+#earthworkFactorHelper .calculator-buttons { margin: 4px 0 0; }
+#earthworkFactorHelper #earthworkFactorHelpStatus { margin: 0; padding: 0 2px; color: #586b7e; }
+#earthworkFactorHelper button:disabled { opacity: .5; cursor: not-allowed; }
+@media screen {
+    html.excabase-dark #earthworkFactorHelper .earthwork-help-block { background: #203247; border-color: #40536a; }
+    html.excabase-dark #earthworkFactorHelper .earthwork-help-selection { background: #1b2b3d; border-top-color: #f4b400; }
+    html.excabase-dark #earthworkFactorHelper .earthwork-help-conversion { background: #3c3925; }
+    html.excabase-dark #earthworkFactorHelper .earthwork-help-formula { background: #1b2b3d; border-left-color: #f4b400; }
+    html.excabase-dark #earthworkFactorHelper .earthwork-help-source a { color: #f4c64e; }
+}
+@media (max-width: 600px) { #earthworkFactorHelper .calculator-buttons button { width: 100%; } }

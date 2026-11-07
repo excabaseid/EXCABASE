@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opsi Alat Berat | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+<style>
+    body {
+        display: flex;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .sidebar {
+        flex: 0 0 260px;
+        width: 260px;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        min-width: 0;
+        margin-left: 0;
+        padding: 28px;
+    }
+
+    @media (max-width: 768px) {
+        body {
+            display: block;
+        }
+
+        .sidebar {
+            width: 100%;
+            min-height: auto;
+        }
+
+        .main-content {
+            width: 100%;
+            padding: 18px;
+        }
+    }
+
+    
+.equipment-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.equipment-checkbox-grid label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.equipment-checkbox-grid input {
+    width: 18px;
+    height: 18px;
+    accent-color: #eab308;
+}
+
+@media (max-width: 768px) {
+    .equipment-checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/results-ui.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body data-results-ui>
+<!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+        <nav class="menu">
+            <div class="menu-title">OVERVIEW</div>
+            <a href="../index.html">▦ Dashboard</a>
+
+            <div class="menu-title">PROYEK</div>
+            <a href="buat-proyek.html">＋ Buat Proyek</a>
+            <a href="proyek-aktif.html">▤ Proyek Aktif</a>
+            <a href="riwayat-proyek.html">◷ Riwayat Proyek</a>
+
+            <div class="menu-title">PERHITUNGAN MANDIRI</div>
+            <a href="kalkulator-volume-tanah.html" class="active">▤ Pekerjaan Tanah</a>
+            <a href="produktivitas.html">∑ Produktivitas</a>
+            <a href="estimasi-proyek.html">▧ Estimasi Biaya</a>
+
+            <div class="menu-title">REFERENSI ALAT</div>
+            <a href="katalog.html">▣ Katalog Alat Berat</a>
+            <a href="perbandingan-alat.html">⇄ Perbandingan Alat</a>
+
+            <div class="menu-title">PENGATURAN</div>
+            <a href="pengaturan.html">⚙ Pengaturan</a>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <header class="page-header">
+            <h1 class="excabase-page-title">Opsi Alat Berat</h1>
+            <p>Lihat pilihan alat berat yang dapat digunakan berdasarkan jenis pekerjaan dan material proyek.</p>
+        </header>
+
+        <section class="calculator-card">
+            <h2>Parameter Pekerjaan</h2>
+
+            <div class="calculator-grid">
+                <div class="calculator-form">
+
+                    <div>
+                        <label for="recommendationWork">Jenis Pekerjaan</label>
+                        <select id="recommendationWork" name="recommendationWork">
+                            <option value="">Pilih jenis pekerjaan</option>
+                            <option value="Pematangan Lahan">Pematangan Lahan</option>
+                            <option value="Galian dan Timbunan">Galian dan Timbunan</option>
+                            <option value="Pengangkutan Material">Pengangkutan Material</option>
+                            <option value="Perataan Tanah">Perataan Tanah</option>
+                            <option value="Pemadatan Tanah">Pemadatan Tanah</option>
+                            <option value="Pemuatan Material">Pemuatan Material</option>
+                            <option value="Pekerjaan Jalan">Pekerjaan Jalan</option>
+                        </select>
+                        
+                    </div>
+
+                    <div>
+                        <label for="recommendationMaterial">Jenis Material</label>
+                        <select id="recommendationMaterial" name="recommendationMaterial">
+                            <option value="">Pilih jenis tanah</option>
+                            <option value="Tanah biasa">Tanah biasa</option>
+                            <option value="Tanah lempung">Tanah lempung</option>
+                            <option value="Tanah berpasir">Tanah berpasir</option>
+                            <option value="Tanah keras">Tanah keras</option>
+                            <option value="Batuan">Batuan</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="calculator-buttons">
+                <button id="recommendEquipmentBtn" type="button">Tampilkan Opsi Alat</button>
+                <button id="resetRecommendationBtn" type="button">Reset</button>
+            </div>
+
+            <div class="calculator-result">
+                <span>Opsi Alat yang dapat digunakan</span>
+
+                <div id="recommendationStatus">
+                    Masukkan data pekerjaan, lalu klik Cari Rekomendasi.
+                </div>
+
+                <div id="recommendationResult" class="detail-note"></div>
+                
+<!-- PEMILIHAN ALAT BERAT OLEH PENGGUNA -->
+<div id="equipmentSelectionSection" style="margin-top: 28px;">
+
+    <h2>Pilih Alat Berat yang Akan Digunakan</h2>
+
+    <p style="color: #64748b; margin-bottom: 18px;">
+        Pilih alat berat sesuai kebutuhan proyek.
+        Anda dapat mengikuti rekomendasi EXCABASE
+        atau menentukan kombinasi alat sendiri.
+    </p>
+
+    <div class="equipment-checkbox-grid">
+
+        <label><input type="checkbox" value="excavator" class="equipment-choice"> Excavator</label>
+
+        <label><input type="checkbox" value="bulldozer" class="equipment-choice"> Bulldozer</label>
+
+        <label><input type="checkbox" value="dumptruck" class="equipment-choice"> Dump Truck</label>
+
+        <label><input type="checkbox" value="wheelloader" class="equipment-choice"> Wheel Loader</label>
+
+        <label><input type="checkbox" value="motorgrader" class="equipment-choice"> Motor Grader</label>
+
+        <label><input type="checkbox" value="compactor" class="equipment-choice"> Compactor / Roller</label>
+
+    </div>
+
+    <div class="calculator-buttons" style="margin-top: 22px;">
+        <button type="button" id="useRecommendedEquipmentBtn">
+            Gunakan Rekomendasi
+        </button>
+
+        <button type="button" id="saveSelectedEquipmentBtn">
+            Simpan Pilihan Alat
+        </button>
+    </div>
+
+    <p id="equipmentSelectionStatus" style="margin-top: 14px;"></p>
+
+</div>
+
+            </div>
+        </section>
+
+        <a href="../index.html" class="back-link">← Kembali ke Dashboard</a>
+    </div>
+    <script src="../js/project-storage.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/project-lock.js"></script>
+    <script src="../js/project-navigation.js"></script>
+    <script src="../js/sidebar-manager.js"></script>
+<script src="../js/results-ui.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

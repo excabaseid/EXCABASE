@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/settings.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body class="settings-page">
+
+    <div class="container">
+
+        <aside class="sidebar">
+            <div class="logo">EXCA<span>BASE</span></div>
+            <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+            <nav class="menu"></nav>
+        </aside>
+
+        <main class="main">
+
+            <header class="header">
+                <div>
+                    <h1 class="excabase-page-title">Pengaturan</h1>
+                    <p>Kelola profil, tampilan, dan data EXCABASE.</p>
+                </div>
+                <div class="profile" id="settingsProfile" aria-label="Nama pengguna">Pengguna</div>
+            </header>
+
+            <section class="settings-card" aria-labelledby="profileSettingsTitle">
+                <header class="settings-card-header">
+                    <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></span>
+                    <div><h2 id="profileSettingsTitle">Profil Pengguna</h2><p>Atur nama yang ditampilkan pada EXCABASE.</p></div>
+                </header>
+
+                <div class="settings-field">
+                    <label for="adminName">Nama Pengguna</label>
+                    <input type="text" id="adminName"
+                           placeholder="Masukkan nama pengguna" autocomplete="nickname">
+                </div>
+
+                <div class="settings-actions"><button type="button" id="saveAdminNameBtn" class="settings-button">Simpan Perubahan</button></div>
+
+                <div id="settingsMessage" class="settings-feedback" role="status" aria-live="polite"></div>
+            </section>
+
+            <section class="settings-card" aria-labelledby="themeSettingsTitle">
+                <header class="settings-card-header">
+                    <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 3a9 9 0 0 1 0 18Z" fill="currentColor" stroke="none"/></svg></span>
+                    <div><h2 id="themeSettingsTitle">Preferensi Tampilan</h2><p>Sesuaikan tampilan website.</p></div>
+                </header>
+
+                <div class="settings-field">
+                    <label for="themeSelect">Tema Website</label>
+                    <select id="themeSelect">
+                        <option value="light">Terang</option>
+                        <option value="dark">Gelap</option>
+                    </select>
+                </div>
+
+                <div class="settings-actions"><button type="button" id="saveThemeBtn" class="settings-button">Terapkan Tema</button></div>
+
+                <div id="themeMessage" class="settings-feedback" role="status" aria-live="polite">
+                    <p>Pilihan tema disimpan di browser ini.</p>
+                </div>
+            </section>
+
+            <section class="settings-card" aria-labelledby="dataSettingsTitle">
+                <header class="settings-card-header">
+                    <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"/></svg></span>
+                    <div><h2 id="dataSettingsTitle">Manajemen Data</h2><p>Kelola riwayat proyek yang tersimpan di browser.</p></div>
+                </header>
+                <div class="settings-danger-zone">
+                    <h3>Hapus Seluruh Riwayat Proyek</h3>
+                    <p>Menghapus seluruh riwayat proyek yang tersimpan secara lokal di browser. Tindakan ini tidak dapat dibatalkan.</p>
+
+                    <div class="settings-actions"><button type="button" id="clearSettingsHistoryBtn" class="settings-button settings-button-danger"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>Hapus Riwayat</button></div>
+                </div>
+
+                <div id="dataSettingsMessage" class="settings-feedback" role="status" aria-live="polite">
+                    <p>Riwayat proyek disimpan secara lokal di browser.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/sidebar-manager.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

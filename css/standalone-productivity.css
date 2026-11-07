@@ -1,0 +1,48 @@
+/* Only loaded by individual and combination calculators. */
+.standalone-productivity .sidebar { flex: 0 0 250px; }
+.standalone-productivity .main { overflow-wrap: anywhere; }
+.standalone-productivity .page-header,
+.standalone-productivity .topbar { margin-bottom: 24px; }
+.standalone-productivity .combination-panel {
+    padding: 24px;
+    margin: 24px 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+}
+.standalone-productivity .equipment-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    border: 0;
+    margin: 18px 0;
+}
+.standalone-productivity .equipment-options legend { margin-bottom: 12px; font-weight: 600; }
+.standalone-productivity .equipment-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.standalone-productivity .equipment-option:has(:checked) { background: #fff3c4; border-color: #eab308; }
+.standalone-productivity .equipment-option input { accent-color: #ca8a04; width: 18px; height: 18px; }
+.standalone-productivity .equipment-option:focus-within { outline: 2px solid #18364d; outline-offset: 2px; }
+.standalone-productivity .combination-status { margin-top: 12px; line-height: 1.6; }
+.standalone-productivity .combination-panel > button {
+    padding: 12px 18px; border: 0; border-radius: 8px;
+    background: #eab308; color: #1e293b; font-weight: 600; cursor: pointer;
+}
+@media (max-width: 900px) {
+    .standalone-productivity .equipment-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .standalone-productivity .calculator-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+    .standalone-productivity .sidebar { flex-basis: auto; }
+    .standalone-productivity .equipment-options { grid-template-columns: 1fr; }
+    .standalone-productivity .combination-panel { padding: 18px; }
+    .standalone-productivity .calculator-form { grid-template-columns: 1fr; }
+    .standalone-productivity .calculator-result { padding: 18px; }
+}

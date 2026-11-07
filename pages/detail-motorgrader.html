@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Motor Grader | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .detail-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #172554, #1e3a8a);
+            color: white;
+            padding: 30px 34px;
+            border-radius: 16px;
+            margin-bottom: 26px;
+            border-left: 6px solid #eab308;
+        }
+
+        .detail-header h1 {
+            color: white;
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .detail-header p {
+            color: #dbeafe;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .detail-section {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        .detail-section h2 {
+            color: #1e293b;
+            font-size: 21px;
+            margin: 0 0 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .detail-intro {
+            color: #475569;
+            line-height: 1.8;
+            margin-bottom: 18px;
+        }
+
+        .detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .detail-meta span {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .detail-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .detail-spec-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            background: #f8fafc;
+            border-top: 4px solid #eab308;
+        }
+
+        .detail-spec-card .spec-label {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .detail-spec-card .spec-value {
+            color: #0f172a;
+            font-size: 27px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .detail-spec-card .spec-unit {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .detail-note {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 5px solid #eab308;
+            border-radius: 10px;
+            padding: 16px 20px;
+            color: #854d0e;
+            line-height: 1.7;
+            margin-top: 20px;
+        }
+
+        .detail-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .detail-list li {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            padding: 13px 16px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .detail-list li::before {
+            content: "✓";
+            color: #ca8a04;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
+        .detail-footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 10px 0 20px;
+        }
+
+        @media (max-width: 800px) {
+            .detail-spec-grid,
+            .detail-list {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-page {
+                padding: 16px;
+            }
+
+            .detail-header {
+                padding: 24px;
+            }
+
+            .detail-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+
+<body>
+<aside class="sidebar">
+    <div class="logo">EXCA<span>BASE</span></div>
+    <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+    <nav class="menu" aria-label="Navigasi utama"></nav>
+</aside>
+
+
+<div class="main-content">
+<main class="detail-page">
+
+    <header class="detail-header">
+        <h1 id="detailTitle" class="excabase-page-title">Detail Motor Grader</h1>
+        <p>Informasi teknis, karakteristik, dan penggunaan motor grader dalam pekerjaan konstruksi dan pekerjaan tanah.</p>
+    </header>
+
+    <section class="detail-section">
+        <h2>Pilih Model Motor Grader</h2>
+
+        <div style="max-width:500px;">
+            <label for="modelSelect"><strong>Model alat:</strong></label>
+            <select id="modelSelect"
+                    style="width:100%; margin-top:10px; padding:12px; border:1px solid #d1d5db; border-radius:8px;">
+            </select>
+        </div>
+    </section>
+
+    <section class="detail-section">
+        <h2>Informasi Umum</h2>
+
+        <div class="detail-intro" id="detailIntro">
+            Motor grader merupakan alat berat yang menggunakan blade panjang
+            untuk meratakan, membentuk kemiringan, dan melakukan finishing
+            permukaan tanah maupun lapisan jalan.
+        </div>
+
+        <div class="detail-meta">
+            <span><strong>Produsen:</strong> <span id="detailManufacturer">-</span></span>
+            <span><strong>Model:</strong> <span id="detailModel">-</span></span>
+            <span><strong>Kategori:</strong> Finishing</span>
+        </div>
+    </section>
+
+    <section class="detail-section">
+        <h2>Parameter Teknis</h2>
+
+        <div class="detail-spec-grid" id="detailSpecGrid"></div>
+
+        <div class="detail-note">
+            <strong>Status verifikasi:</strong>
+            <span id="detailVerification">-</span>
+
+            <div style="margin-top:8px;">
+                <a id="detailSource"
+                   href="#"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Lihat sumber manufaktur ↗
+                </a>
+            </div>
+
+            <p style="margin-top:10px;">
+                Spesifikasi dapat berbeda berdasarkan generasi, konfigurasi,
+                dan wilayah pemasaran. Gunakan brosur model aktual untuk
+                perhitungan teknis.
+            </p>
+        </div>
+    </section>
+
+    <section class="detail-section">
+        <h2>Penggunaan</h2>
+
+        <ul class="detail-list">
+            <li>Perataan permukaan tanah</li>
+            <li>Pembentukan kemiringan melintang jalan</li>
+            <li>Finishing lapisan tanah dasar</li>
+            <li>Pemeliharaan jalan agregat</li>
+            <li>Pembentukan saluran dangkal di sisi jalan</li>
+        </ul>
+    </section>
+
+    <section class="detail-section">
+        <h2>Karakteristik Alat</h2>
+
+        <ul class="detail-list">
+            <li>Menggunakan blade yang dapat diatur sudut dan posisinya</li>
+            <li>Efektif untuk pekerjaan perataan dan finishing</li>
+            <li>Produktivitas umumnya dihitung berdasarkan luas per jam</li>
+            <li>Jumlah lintasan dan kecepatan kerja memengaruhi produktivitas</li>
+        </ul>
+    </section>
+
+    <div class="detail-footer">
+        EXCABASE — Heavy Equipment Management & Earthmoving Analysis Platform
+    </div>
+
+</main>
+</div>
+
+<script src="../js/equipment-data.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const motorgraderData = equipmentData.find(function (item) {
+        return item.id === "motorgrader";
+    });
+
+    const modelSelect = document.getElementById("modelSelect");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailIntro = document.getElementById("detailIntro");
+    const detailManufacturer = document.getElementById("detailManufacturer");
+    const detailModel = document.getElementById("detailModel");
+    const detailSpecGrid = document.getElementById("detailSpecGrid");
+    const detailVerification = document.getElementById("detailVerification");
+    const detailSource = document.getElementById("detailSource");
+
+    if (!motorgraderData || !motorgraderData.models) {
+        detailSpecGrid.innerHTML = "<p>Data model motor grader belum tersedia.</p>";
+        return;
+    }
+
+    const specificationLabels = {
+        bladeWidth: "Lebar Blade",
+        enginePower: "Daya Mesin",
+        operatingWeight: "Berat Operasi",
+        maxSpeed: "Kecepatan Maksimum"
+    };
+
+    motorgraderData.models.forEach(function (model, index) {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = model.manufacturer + " " + model.model;
+        modelSelect.appendChild(option);
+    });
+
+    function renderModel() {
+        const model = motorgraderData.models[Number(modelSelect.value)];
+
+        if (!model) return;
+
+        detailTitle.textContent =
+            "Motor Grader " + model.manufacturer + " " + model.model;
+
+        detailManufacturer.textContent = model.manufacturer;
+        detailModel.textContent = model.model;
+
+        detailIntro.textContent =
+            model.manufacturer + " " + model.model +
+            " merupakan motor grader yang digunakan untuk meratakan permukaan, " +
+            "membentuk kemiringan, dan melakukan finishing tanah maupun jalan. " +
+            "Spesifikasi mengikuti data model yang dipilih.";
+
+        detailSpecGrid.innerHTML = "";
+
+        Object.entries(model.specifications || {}).forEach(function ([key, value]) {
+            const specCard = document.createElement("div");
+            specCard.className = "detail-spec-card";
+
+            specCard.innerHTML = `
+                <div class="spec-label">${specificationLabels[key] || key}</div>
+                <div class="spec-value">${value}</div>
+                <div class="spec-unit"></div>
+            `;
+
+            detailSpecGrid.appendChild(specCard);
+        });
+
+        detailVerification.textContent =
+            model.verification || "Status verifikasi belum dicantumkan.";
+
+        if (model.source) {
+            detailSource.href = model.source;
+            detailSource.style.display = "inline";
+        } else {
+            detailSource.style.display = "none";
+        }
+    }
+
+    modelSelect.addEventListener("change", renderModel);
+    renderModel();
+});
+</script>
+
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimasi Proyek | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR EXCABASE -->
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+
+        <nav class="menu"></nav>
+    </aside>
+
+    <!-- KONTEN UTAMA -->
+    <div class="main-content">
+
+        <header class="page-header">
+            <h1 class="excabase-page-title">Estimasi Proyek Pekerjaan Tanah</h1>
+            <p>Estimasi durasi pekerjaan dan kebutuhan alat berdasarkan volume proyek dan produktivitas alat berat.</p>
+        </header>
+
+        <section class="calculator-card">
+            <h2>Data Proyek</h2>
+
+            <div class="calculator-grid">
+                <div class="calculator-form">
+
+                    <div>
+                        <label for="projectName">Nama Proyek</label>
+                        <input type="text" id="projectName" value="Proyek Pekerjaan Tanah">
+                    </div>
+
+                    <div>
+                        <label for="projectVolume">Volume Pekerjaan (m³)</label>
+                        <input type="number" id="projectVolume" value="10000" min="1" step="100" readonly>
+                    </div>
+
+                    <div>
+                        <label for="projectProductivity">Produktivitas Alat (m³/jam)</label>
+                        <input type="number" id="projectProductivity" value="100" min="0.1" step="1">
+                    </div>
+
+                    <div>
+                        <label for="projectEquipmentCount">Jumlah Alat</label>
+                        <input type="number" id="projectEquipmentCount" value="2" min="1" step="1">
+                    </div>
+
+                    <div>
+                        <label for="projectHours">Jam Kerja per Hari</label>
+                        <input type="number" id="projectHours" value="8" min="1" max="24" step="0.5">
+                    </div>
+                    <div>
+                        <label for="projectTargetDays">Target Durasi Pekerjaan (hari)</label>
+                        <input
+                            type="number"
+                            id="projectTargetDays"
+                            placeholder="Mengikuti target durasi proyek"
+                            min="1"
+                            step="1"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="equipmentCostPerHour">Biaya Operasional Alat (Rp/jam)</label>
+                        <input type="number" id="equipmentCostPerHour" value="350000" min="0" step="10000">
+                    </div>
+
+                </div>
+            </div>
+            <!-- ESTIMASI KEBUTUHAN ALAT BERAT -->
+            <div class="detail-section" id="projectEquipmentSection">
+                <h2>Estimasi Kebutuhan Alat Berat</h2>
+
+                <p>
+                    Data alat dan produktivitas diambil dari hasil
+                    perhitungan Produktivitas proyek.
+                </p>
+                <div id="projectVolumeInfo" class="detail-note" style="margin-bottom: 20px;"></div>
+                <div id="projectEquipmentList">
+                    <p>Belum ada data produktivitas alat.</p>
+                </div>
+            </div>
+            <div class="calculator-buttons">
+                <button id="calculateProjectBtn" type="button">Hitung Estimasi</button>
+                <button id="resetProjectBtn" type="button">Reset</button>
+            </div>
+
+            <div class="calculator-result">
+                <span>Hasil Estimasi Proyek</span>
+
+                <div id="projectCalculationStatus">
+                    Masukkan data proyek, lalu klik Hitung Estimasi.
+                </div>
+
+                <div id="projectCalculationDetails" class="detail-note"></div>
+            </div>
+        </section>
+
+        <a href="../index.html" class="back-link">← Kembali ke Dashboard</a>
+    <script>
+        // Muat modul sesuai jalur; Estimasi Mandiri tidak menjalankan modul proyek.
+        const estimateScripts = new URLSearchParams(window.location.search).get("fromProject") === "1"
+            ? ["project-storage", "main", "project-lock", "project-navigation"]
+            : ["standalone-estimate"];
+        estimateScripts.forEach(function (name) {
+            document.write('<script src="../js/' + name + '.js"><\/script>');
+        });
+    </script>
+    <script src="../js/sidebar-manager.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>

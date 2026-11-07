@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perbandingan Alat Berat | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="logo">EXCA<span>BASE</span></div>
+    <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+    <nav class="menu" aria-label="Navigasi utama"></nav>
+</aside>
+
+
+    <header class="navbar">
+        <div class="logo">EXCABASE</div>
+        <nav>
+            <a href="../index.html">Dashboard</a>
+            <a href="katalog.html">Katalog</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="page-header">
+            <h1 class="excabase-page-title">Perbandingan Alat Berat</h1>
+            <p>Bandingkan spesifikasi dan estimasi produktivitas dua alat berat.</p>
+        </section>
+
+        <section class="calculator-card">
+            <h2>Pilih Alat yang Dibandingkan</h2>
+
+            <div class="calculator-grid">
+                <div class="calculator-form">
+                    <label for="compareEquipment1">Alat Berat 1</label>
+                    <select id="compareEquipment1">
+                        <option value="excavator">Excavator</option>
+                        <option value="bulldozer">Bulldozer</option>
+                        <option value="dumptruck">Dump Truck</option>
+                        <option value="wheelloader">Wheel Loader</option>
+                        <option value="motorgrader">Motor Grader</option>
+                        <option value="compactor">Compactor / Roller</option>
+                    </select>
+                </div>
+
+                <div class="calculator-form">
+                    <label for="compareEquipment2">Alat Berat 2</label>
+                    <select id="compareEquipment2">
+                        <option value="dumptruck">Dump Truck</option>
+                        <option value="excavator">Excavator</option>
+                        <option value="bulldozer">Bulldozer</option>
+                        <option value="wheelloader">Wheel Loader</option>
+                        <option value="motorgrader">Motor Grader</option>
+                        <option value="compactor">Compactor / Roller</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="compareEquipmentBtn" class="btn-primary">
+                Bandingkan Alat
+            </button>
+
+            <div id="comparisonResult" class="result-box">
+                <p>Pilih dua alat, lalu klik tombol <strong>Bandingkan Alat</strong>.</p>
+            </div>
+        </section>
+
+        <a href="../index.html" class="back-link">← Kembali ke Dashboard</a>
+    </main>
+
+    <script src="../js/main.js"></script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/sidebar-shell.js"></script>
+</body>
+</html>
