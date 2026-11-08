@@ -115,7 +115,7 @@
 .equipment-card--wheelloader { --equipment-background: url('../assets/wheelloader-1.jpg'); }
 .equipment-card--motorgrader { --equipment-background: url('../assets/motorgrader-1.jpg'); }
 .equipment-card--compactor { --equipment-background: url('../assets/compactor-1.jpg'); }
-.equipment-card--combination { --equipment-background: url('../assets/proyek.jpg'); }
+.equipment-card--combination { --equipment-background: url('../assets/kartuproyek.jpg'); }
 :is(#equipmentGrid, #productivityEquipmentGrid) > .equipment-card--excavator { --equipment-position: 58% 60%; }
 :is(#equipmentGrid, #productivityEquipmentGrid) > .equipment-card--bulldozer { --equipment-position: 48% 55%; }
 :is(#equipmentGrid, #productivityEquipmentGrid) > .equipment-card--dumptruck { --equipment-position: 64% 58%; }
