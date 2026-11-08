@@ -1,0 +1,322 @@
+/* Phase one opts in on Dashboard only. No layout or application state changes. */
+@media screen {
+    body.dashboard-motion .sidebar .menu a {
+        transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    }
+
+    /* Keep hover from changing text width; the active item retains its weight. */
+    body.dashboard-motion .sidebar .menu a:hover:not(.active) { font-weight: normal; }
+    body.dashboard-motion .sidebar .menu a.active {
+        box-shadow: inset 3px 0 #e5ae20;
+    }
+    body.dashboard-motion .sidebar :is(.sidebar-menu-icon, .sidebar-menu-label) {
+        transition: transform 200ms ease;
+    }
+
+    body.dashboard-motion :is(button, .dashboard-hero-btn, .dashboard-view-all,
+        .dashboard-empty-project a, .dashboard-live-footer a, .dashboard-quick-item),
+    body.catalog-page #equipmentGrid .equipment-detail-btn,
+    body.project-motion .project-page :is(.project-add-button, .project-open-button, .project-delete-button, .primary-button),
+    body.create-project-motion #projectForm .submit-button,
+    body.calculator-motion .main-content button,
+    .fleet-page .fleet-btn,
+    main.main:has(#reportTitle) :is(.report-actions button, .report-completion-btn) {
+        transition: background-color 200ms ease, color 200ms ease,
+            border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+    }
+    body.dashboard-motion :is(button, a):focus-visible,
+    body.catalog-page #equipmentGrid .equipment-detail-btn:focus-visible,
+    body.catalog-page .catalog-controls :is(#equipmentSearch, #equipmentFilter):focus-visible,
+    body.project-motion .project-page :is(a, button):focus-visible,
+    body.create-project-motion #projectForm :is(input, select, textarea, button):focus-visible,
+    body.calculator-motion .main-content :is(input, select, textarea, button, a):focus-visible,
+    .fleet-page :is(input, select, button):focus-visible {
+        outline: 2px solid #0891b2;
+        outline-offset: 3px;
+    }
+    body.dashboard-motion :is(button, .dashboard-hero-btn, .dashboard-view-all,
+        .dashboard-empty-project a, .dashboard-live-footer a, .dashboard-quick-item):active:not(:disabled):not([aria-disabled="true"]),
+    body.catalog-page #equipmentGrid .equipment-detail-btn:active:not([aria-disabled="true"]),
+    body.project-motion .project-page :is(.project-add-button, .project-open-button, .project-delete-button, .primary-button):active:not(:disabled):not([aria-disabled="true"]),
+    body.create-project-motion #projectForm .submit-button:active:not(:disabled),
+    body.calculator-motion .main-content button:active:not(:disabled):not([aria-disabled="true"]),
+    .fleet-page .fleet-btn:active:not(:disabled):not([aria-disabled="true"]),
+    main.main:has(#reportTitle) :is(.report-actions button, .report-completion-btn):active:not(:disabled):not([aria-disabled="true"]) {
+        transform: translateY(1px) scale(.98);
+    }
+    body.dashboard-motion :is(.dashboard-stats, .content-grid),
+    body.catalog-page #equipmentGrid,
+    body.project-motion .project-page :is(#projectListGrid, #projectContent, #emptyState),
+    body.create-project-motion #projectForm,
+    body.productivity-motion :is(#productivityEquipmentGrid, #projectProductivityCalculators > .detail-section),
+    body.estimate-motion .main-content > .calculator-card,
+    body.estimate-motion #standaloneEstimateForm,
+    body.earthwork-motion #earthworkCalculatorCard,
+    .fleet-page > .calculator-card {
+        animation: excabase-dashboard-enter 300ms ease-out;
+    }
+    body.dashboard-motion :is(.dashboard-stats .card, .dashboard-live-project, .dashboard-quick-item) {
+        transition: transform 250ms ease, box-shadow 250ms ease,
+            border-color 250ms ease, background-color 250ms ease;
+    }
+    /* Neutralize legacy hover movement on touch devices. */
+    body.dashboard-motion :is(.dashboard-stats .card, .dashboard-live-project,
+        .dashboard-quick-item, .dashboard-hero-btn, .dashboard-empty-project a):hover {
+        transform: none;
+    }
+    @media (hover: hover) and (pointer: fine) {
+        body.dashboard-motion .sidebar .menu a:hover .sidebar-menu-icon { transform: translateY(-1px); }
+        body.dashboard-motion .sidebar .menu a:hover .sidebar-menu-label { transform: translateX(2px); }
+        body.dashboard-motion :is(.dashboard-stats .card, .dashboard-live-project, .dashboard-quick-item):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+        }
+        body.dashboard-motion :is(.dashboard-live-project, .dashboard-quick-item):hover { border-color: #e5ae20; }
+        body.dashboard-motion :is(.dashboard-hero-btn, .dashboard-empty-project a):hover { transform: translateY(-2px); }
+    }
+    /* Press takes precedence over hover, including on cards that act as links. */
+    body.dashboard-motion :is(.dashboard-quick-item, .dashboard-hero-btn, .dashboard-empty-project a):active {
+        transform: translateY(1px) scale(.98);
+    }
+}
+
+/* Phase two: catalog only. The grid enters once, even when filtering rebuilds cards.
+   Keep existing card geometry, backgrounds and fine-pointer hover lift/shadow. */
+@media screen {
+    body.catalog-page #equipmentGrid > .equipment-image-card {
+        transition: transform 240ms ease, box-shadow 240ms ease,
+            border-color 240ms ease, background-position 300ms ease;
+    }
+    body.catalog-page .catalog-controls :is(#equipmentSearch, #equipmentFilter),
+    body.create-project-motion #projectForm :is(input, select, textarea),
+    body.calculator-motion .main-content :is(input, select, textarea),
+    .fleet-page :is(input, select) {
+        transition: border-color 200ms ease, box-shadow 200ms ease,
+            background-color 200ms ease;
+    }
+    body.catalog-page .catalog-controls :is(#equipmentSearch, #equipmentFilter):focus,
+    body.create-project-motion #projectForm :is(input, select, textarea):focus,
+    body.calculator-motion .main-content :is(input, select, textarea):focus,
+    .fleet-page :is(input, select):focus {
+        border-color: #0891b2;
+        box-shadow: 0 0 0 3px rgba(8, 145, 178, .16);
+    }
+    @media (hover: hover) and (pointer: fine) {
+        body.catalog-page .catalog-controls :is(#equipmentSearch, #equipmentFilter):hover {
+            border-color: #e5ae20;
+            box-shadow: 0 0 0 3px rgba(229, 174, 32, .12);
+        }
+        body.catalog-page #equipmentGrid > .equipment-image-card:hover {
+            background-position-y: 63%;
+        }
+        /* Existing dark-mode backgrounds use an important position declaration. */
+        html.excabase-dark body.catalog-page #equipmentGrid > .equipment-image-card:hover {
+            background-position-y: 63% !important;
+        }
+    }
+    @media (hover: none), (pointer: coarse) {
+        body.catalog-page #equipmentGrid > .equipment-image-card:hover { transform: none; }
+    }
+}
+
+/* Phase three: preserve project geometry and all form/project behavior. */
+@media screen {
+    /* Entry is only for initial presentation, never while someone fills the form. */
+    body.create-project-motion #projectForm:focus-within { animation: none; }
+
+    body.project-motion .project-page :is(.project-list-card, .summary-card, .workflow-card) {
+        transition: transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease;
+    }
+    body.project-motion .project-page :is(.workflow-status, .summary-value, .project-list-card p) {
+        transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+        /* List and information cards already lift 3px in style.css. */
+        body.project-motion .project-page .workflow-card:hover { transform: translateY(-3px); }
+        body.project-motion .project-page .workflow-card:hover .workflow-status { transform: translateX(2px); }
+        body.project-motion .project-page .summary-card:hover .summary-value,
+        body.project-motion .project-page .project-list-card:hover p { transform: translateX(1px); }
+        body.create-project-motion #projectForm :is(input, select, textarea):hover:not(:focus):not(:disabled) {
+            box-shadow: 0 0 0 3px rgba(229, 174, 32, .12);
+        }
+        body.project-motion .project-page .primary-button:hover { background-color: #facc15; }
+    }
+    @media (hover: none), (pointer: coarse) {
+        body.project-motion .project-page :is(.project-list-card, .summary-card, .workflow-card,
+            .project-add-button, .project-delete-button):hover:not(:active) { transform: none; }
+    }
+}
+
+/* Phase four: three opt-in entry pages, including dynamically created project forms.
+   Focus cancels entry movement; interactive calculator cards never lift in use. */
+@media screen {
+    body.calculator-motion .main-content :is(.calculator-card, .detail-section, #standaloneEstimateForm):focus-within {
+        animation: none;
+        transform: none;
+    }
+    body.calculator-motion .main-content :is(.calculator-card, .calculator-result,
+        .estimate-panel, .estimate-result, .estimate-equipment-card, .results-kpi, .results-info-panel) {
+        transition: box-shadow 250ms ease, border-color 250ms ease;
+    }
+    body.estimate-motion .estimate-options label {
+        transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+    }
+    body.estimate-motion .estimate-options label:focus-within {
+        outline: 2px solid #0891b2;
+        outline-offset: 3px;
+    }
+    @media (hover: hover) and (pointer: fine) {
+        body.calculator-motion .main-content :is(.calculator-card, .calculator-result,
+            .estimate-panel, .estimate-result, .estimate-equipment-card, .results-kpi, .results-info-panel):hover:not(:focus-within) {
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+        }
+        body.estimate-motion .estimate-options label:hover { box-shadow: 0 0 0 3px rgba(229, 174, 32, .12); }
+    }
+    /* These children are replaced by existing calculation clicks/restoration.
+       Text-only productivity updates cannot safely restart a CSS animation.
+       Standalone estimates also render on input: deliberately no result animation. */
+    body.earthwork-motion #earthworkCalculationDetails > *,
+    body.estimate-motion #projectCalculationDetails > * {
+        animation: excabase-result-enter 250ms ease-out;
+    }
+    @media (hover: none), (pointer: coarse) {
+        body.productivity-motion #productivityEquipmentGrid > .equipment-image-card:hover { transform: none; }
+        body.calculator-motion .main-content button:hover:not(:active) { transform: none; }
+    }
+}
+/* Phase five uses existing page roots, without markup or script changes.
+   Screen scope keeps all entry/hover effects out of print and Save as PDF. */
+@media screen {
+    .fleet-page > .calculator-card:focus-within { animation: none; }
+    .fleet-page :is(.fleet-summary-item, .fleet-scenario-card, .fleet-card-total,
+        .fleet-equipment-item, .fleet-evaluation-panel, .fleet-recommendation-card),
+    main.main:has(#reportTitle) :is(.report-card, .report-table, .report-technical-card,
+        .report-conclusion-card, .report-completion-card) {
+        transition: box-shadow 250ms ease, border-color 250ms ease, background-color 250ms ease;
+    }
+    /* Animate the stable summary once; graph wrappers enter when existing renderers
+       create them. Bar dimensions, axis labels, data and scales stay page-owned. */
+    main.main:has(#reportTitle) .report-grid:not(.report-chart-grid),
+    main.main:has(#reportTitle) .report-vertical-chart {
+        animation: excabase-result-enter 300ms ease-out;
+    }
+    @media (hover: hover) and (pointer: fine) {
+        .fleet-page :is(.fleet-summary-item, .fleet-scenario-card, .fleet-card-total,
+            .fleet-equipment-item, .fleet-evaluation-panel, .fleet-recommendation-card):hover:not(:focus-within),
+        main.main:has(#reportTitle) :is(.report-card, .report-table, .report-technical-card,
+            .report-conclusion-card):hover {
+            box-shadow: 0 8px 20px rgba(15, 23, 42, .08);
+        }
+    }
+    @media (hover: none), (pointer: coarse) {
+        main.main:has(#reportTitle) .report-actions button:hover:not(:active) { transform: none; }
+    }
+}
+
+@keyframes excabase-result-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes excabase-dashboard-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Reusable, deliberately unused until a real asynchronous loading lifecycle exists.
+   Apply to a dimensioned wrapper with aria-busy="true"; keep its real content in
+   layout and place noninteractive .excabase-skeleton shapes over it. Set busy to
+   false when ready (including errors) to fade the shapes away. Mark shapes
+   aria-hidden="true". Never wrap or cover interactive controls with these shapes.
+   No component dimensions are imposed: match the reserved content geometry. */
+.excabase-loading-region { position: relative; }
+.excabase-loading-region > .excabase-skeleton {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    background: #e5e7eb;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 200ms ease, visibility 0s linear 200ms;
+}
+.excabase-loading-region[aria-busy="true"] > .excabase-skeleton {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+.excabase-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, .65) 50%, transparent 80%);
+    transform: translateX(-100%);
+}
+.excabase-loading-region[aria-busy="true"] > .excabase-skeleton::after {
+    animation: excabase-skeleton-shimmer 1500ms ease-in-out infinite;
+}
+@keyframes excabase-skeleton-shimmer { to { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .fleet-page :is(.calculator-card, .fleet-summary-item, .fleet-scenario-card,
+        .fleet-card-total, .fleet-equipment-item, .fleet-evaluation-panel,
+        .fleet-recommendation-card, input, select, .fleet-btn),
+    main.main:has(#reportTitle) :is(.report-grid, .report-vertical-chart, .report-card,
+        .report-table, .report-technical-card, .report-conclusion-card,
+        .report-completion-card, .report-actions button, .report-completion-btn) {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+    body.calculator-motion .main-content :is(input, select, textarea, button,
+        #productivityEquipmentGrid, .equipment-image-card, .detail-section, .calculator-card,
+        .calculator-result, #standaloneEstimateForm, .estimate-panel, .estimate-result,
+        .estimate-equipment-card, .results-kpi, .results-info-panel, .estimate-options label),
+    body.earthwork-motion #earthworkCalculationDetails > *,
+    body.estimate-motion #projectCalculationDetails > * {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+    body.project-motion .project-page :is(#projectListGrid, #projectContent, #emptyState,
+        .project-list-card, .summary-card, .workflow-card, .workflow-status, .summary-value,
+        .project-list-card p, .project-add-button, .project-open-button, .project-delete-button, .primary-button),
+    body.project-motion .project-page .workflow-card::before,
+    body.create-project-motion #projectForm,
+    body.create-project-motion #projectForm :is(input, select, textarea, .submit-button) {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+    body.catalog-page #equipmentGrid,
+    body.catalog-page #equipmentGrid > .equipment-image-card,
+    body.catalog-page #equipmentGrid .equipment-detail-btn,
+    body.catalog-page .catalog-controls :is(#equipmentSearch, #equipmentFilter) {
+        animation: none !important;
+        transition: none !important;
+    }
+    body.catalog-page #equipmentGrid > .equipment-image-card:hover,
+    html.excabase-dark body.catalog-page #equipmentGrid > .equipment-image-card:hover {
+        transform: none !important;
+        background-position: var(--equipment-position) !important;
+    }
+    body.catalog-page #equipmentGrid .equipment-detail-btn:active { transform: none !important; }
+    body.dashboard-motion :is(.sidebar, .sidebar-shell-content, .sidebar-shell-backdrop,
+        .sidebar .menu a, .sidebar-menu-icon, .sidebar-menu-label, button,
+        .dashboard-hero-btn, .dashboard-view-all, .dashboard-empty-project a,
+        .dashboard-live-footer a, .dashboard-stats, .content-grid, .dashboard-stats .card,
+        .dashboard-live-project, .dashboard-quick-item, .dashboard-live-fill) {
+        animation: none !important;
+        transition: none !important;
+    }
+    body.dashboard-motion :is(.sidebar-menu-icon, .sidebar-menu-label, button,
+        .dashboard-hero-btn, .dashboard-view-all, .dashboard-empty-project a,
+        .dashboard-live-footer a, .dashboard-stats .card, .dashboard-live-project,
+        .dashboard-quick-item):is(:hover, :active) { transform: none !important; }
+    .excabase-loading-region > .excabase-skeleton { transition: none; }
+    .excabase-loading-region > .excabase-skeleton::after { animation: none; display: none; }
+}
+@media print {
+    .excabase-loading-region > .excabase-skeleton { display: none; }
+}
