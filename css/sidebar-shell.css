@@ -204,3 +204,9 @@
         white-space: nowrap;
     }
 }
+/* FIX: Tampilkan profil Administrator di Dashboard HP */
+@media screen and (max-width: 650px) {
+    body.sidebar-shell .main > .header .profile {
+        display: block !important;
+    }
+}
