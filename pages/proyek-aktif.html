@@ -28,11 +28,11 @@
         }
 
         .project-page {
-            padding: 28px;
+            padding: 1px;
         }
 
         .page-heading {
-            margin-bottom: 24px;
+            margin-bottom: 6px;
         }
 
         .page-heading h1 {
@@ -300,6 +300,17 @@
         padding-right: 1px;
     }
 }
+        /* Rapatkan jarak navigasi dan judul khusus HP */
+        @media screen and (max-width: 768px) {
+            body.sidebar-shell .sidebar-shell-mobile-navigation {
+                margin-bottom: 0 !important;
+            }
+
+            .project-page,
+            .project-form-page {
+                padding-top: 12px !important;
+            }
+        }
     </style>
     <link rel="stylesheet" href="../css/theme.css">
     <script src="../js/ui-preferences.js"></script>
