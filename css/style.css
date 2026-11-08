@@ -1621,6 +1621,12 @@ body:has(.dashboard-hero) .header h1 {
     font-weight: 800;
     color: #12344d;
     letter-spacing: -0.5px;
+
+    margin-top: 0;
+    margin-bottom: 1px;
+    body:has(.dashboard-hero) .header p {
+    margin-top: 0;
+}
 }
 
 body:has(.dashboard-hero) .header p {
@@ -2579,4 +2585,16 @@ body.earthwork-project-mode .earthwork-result-panel .calculator-result {
     body.earthwork-project-mode .earthwork-input-panel .calculator-form {
         grid-template-columns: 1fr;
     }
+}
+/* FIX: Jarak header dan banner Dashboard */
+.main > .header {
+    margin-bottom: 12px;
+}
+/* FIX: Jarak judul dan deskripsi Dashboard */
+.main > .header > div:first-child h1 {
+    margin-bottom: 1px;
+}
+
+.main > .header > div:first-child p {
+    margin-top: 0;
 }
