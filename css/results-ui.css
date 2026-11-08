@@ -73,6 +73,32 @@
     }
     body[data-results-ui] .project-calculator-section .calculator-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     body[data-results-ui] .project-calculator-section .form-group:has(:is([data-model], [data-custom-model-name])) { grid-column: 1 / -1; }
+    /* Share label/control/note tracks within each pair. Notes can wrap below
+       controls without shifting the neighbouring input or imposing a label height. */
+    body[data-results-ui] .project-calculator-section .calculator-form {
+        align-items: stretch;
+        row-gap: 0;
+    }
+    body[data-results-ui] .project-calculator-section .calculator-form > .form-group:not([hidden]) {
+        display: grid;
+        grid-template-rows: subgrid;
+        grid-row: span 4;
+        row-gap: 0;
+        padding-bottom: 18px;
+    }
+    body[data-results-ui] .project-calculator-section .calculator-form > .form-group > label {
+        align-self: end;
+        margin: 0 0 8px;
+        overflow-wrap: anywhere;
+    }
+    body[data-results-ui] .project-calculator-section .calculator-form > .form-group > :is(input, select) {
+        align-self: start;
+        min-height: 46px;
+    }
+    body[data-results-ui] .project-calculator-section .calculator-form > .form-group > small {
+        margin-top: 6px;
+        overflow-wrap: anywhere;
+    }
     body[data-results-ui] .project-calculator-section .calculator-result { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-content: start; margin: 0; }
     body[data-results-ui] .project-calculator-section .calculator-result > * { grid-column: 1 / -1; min-width: 0; }
     body[data-results-ui] .project-calculator-section .result-item:has(> :is([data-result="hourly"], [data-result="daily"])) {
@@ -155,6 +181,7 @@
         body[data-results-ui] .results-equipment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         body[data-results-ui] :is(.calculator-card, .calculator-result, .report-header) { padding: 18px; }
         body[data-results-ui] .calculator-form { grid-template-columns: minmax(0, 1fr); }
+        body[data-results-ui] .project-calculator-section .calculator-form { grid-template-columns: minmax(0, 1fr); }
     }
     @media (max-width: 480px) {
         body[data-results-ui] .project-calculator-section :is(.calculator-form, .calculator-result),
