@@ -98,8 +98,9 @@ body:not(.earthwork-project-mode) .earthwork-result-panel .calculator-result {
     <link rel="stylesheet" href="../css/page-titles.css">
     <link rel="stylesheet" href="../css/results-ui.css">
     <link rel="stylesheet" href="../css/sidebar-shell.css">
+    <link rel="stylesheet" href="../css/micro-animations.css">
 </head>
-<body data-results-ui>
+<body class="calculator-motion earthwork-motion" data-results-ui>
 <script>
     if (new URLSearchParams(window.location.search).get("fromProject") === "1") {
         document.body.classList.add("earthwork-project-mode");
