@@ -7,7 +7,7 @@ window.mountProductivityCalculators = function (options) {
     const calculatorConfig = {
         excavator: {
             title: "Excavator",
-            description: "Kapasitas bucket mengikuti model yang dipilih dari katalog. Bucket fill factor, waktu siklus, dan efisiensi kerja perlu disesuaikan dengan kondisi lapangan. Jam kerja mengikuti rencana proyek.",
+            description: "Kapasitas bucket mengikuti model yang dipilih dari katalog. Bucket fill factor, waktu siklus, dan efisiensi kerja perlu disesuaikan dengan kondisi lapangan. Koreksi kedalaman/dumping Fv belum diterapkan eksplisit; asumsi Fv = 1. Jam kerja mengikuti rencana proyek.",
 
             models: equipmentData.find(item => item.id === "excavator")?.models || [],
 
@@ -168,17 +168,17 @@ window.mountProductivityCalculators = function (options) {
 
         motorgrader: {
             title: "Motor Grader",
-            description: "Lebar efektif blade mengikuti model yang dipilih dari katalog. Kecepatan kerja, efisiensi, dan jumlah lintasan disesuaikan dengan kondisi lapangan. Jam kerja mengikuti rencana proyek.",
+            description: "Panjang blade katalog adalah ukuran nominal. Tentukan lebar efektif melalui Bantu Hitung (Tabel A.15, sudut 45°/60°) atau input manual. Overlap antar lajur dan waktu manuver belum dimodelkan eksplisit. Jam kerja mengikuti rencana proyek.",
             models: equipmentData.find(item => item.id === "motorgrader")?.models || [],
             fields: [
                 {
                     id: "graderWidth",
-                    label: "Lebar efektif blade (katalog)",
+                    label: "Lebar efektif blade (manual / hasil bantuan)",
                     unit: "m",
                     value: "",
                     min: 0.01,
                     step: 0.1,
-                    placeholder: "Mengikuti model yang dipilih"
+                    placeholder: "Tentukan dari sudut blade atau isi manual"
                 },
                 {
                     id: "graderSpeed",
@@ -231,7 +231,7 @@ window.mountProductivityCalculators = function (options) {
 
         bulldozer: {
             title: "Bulldozer",
-            description: "Kapasitas blade mengikuti model yang dipilih dari katalog. Fill factor, waktu siklus, dan efisiensi perlu disesuaikan dengan kondisi lapangan. Jam kerja mengikuti rencana proyek.",
+            description: "Kapasitas blade mengikuti model yang dipilih dari katalog. Fill factor, waktu siklus, dan efisiensi perlu disesuaikan dengan kondisi lapangan. Faktor kemiringan Fm belum diterapkan eksplisit; asumsi Fm = 1 (datar, 0%). Jam kerja mengikuti rencana proyek.",
             models: equipmentData.find(item => item.id === "bulldozer")?.models || [],
             fields: [
                 {
@@ -286,17 +286,17 @@ window.mountProductivityCalculators = function (options) {
 
         compactor: {
             title: "Compactor / Roller",
-            description: "Lebar pemadatan mengikuti model yang dipilih dari katalog. Kecepatan kerja, efisiensi, dan jumlah lintasan disesuaikan dengan kondisi lapangan. Jam kerja mengikuti rencana proyek.",
+            description: "Lebar katalog belum dikurangi overlap. Pilih jenis alat pada Bantu Hitung (Tabel A.25) atau isi lebar efektif secara manual. Tebal lapisan adalah tebal akhir setelah pemadatan. Jam kerja mengikuti rencana proyek.",
             models: equipmentData.find(item => item.id === "compactor")?.models || [],
             fields: [
                 {
                     id: "compactorWidth",
-                    label: "Lebar pemadatan (input pengguna)",
+                    label: "Lebar efektif pemadatan setelah overlap (manual / hasil bantuan)",
                     unit: "m",
                     value: "",
                     min: 0.01,
                     step: 0.1,
-                    placeholder: "Masukkan lebar pemadatan"
+                    placeholder: "Pilih jenis alat pada bantuan atau isi lebar efektif"
                 },
                 {
                     id: "compactorSpeed",
@@ -562,6 +562,11 @@ function saveProductivityData() {
         fields: fields,
         parameterHelp: section.parameterHelp
     };
+    if (type === "motorgrader" || type === "compactor") {
+        savedProductivityData[type].effectiveWidthVersion = 1;
+        const review = section.querySelector("[data-width-review]");
+        if (review && Number(fields[type === "motorgrader" ? "graderWidth" : "compactorWidth"]) > 0) review.hidden = true;
+    }
 
     localStorage.setItem(
         productivityStorageKey,
@@ -609,6 +614,24 @@ if (savedData) {
         }
     });
 }
+// Older saved widths may be nominal catalog dimensions. Preserve their metadata,
+// but require editable calculations to confirm an effective width before reuse.
+const effectiveWidthField = type === "motorgrader" ? "graderWidth" : type === "compactor" ? "compactorWidth" : null;
+if (effectiveWidthField) {
+    const widthInput = section.querySelector('[data-field="' + effectiveWidthField + '"]');
+    if (savedData && savedData.effectiveWidthVersion !== 1 && canEdit()) {
+        widthInput.value = "";
+    }
+    const widthNote = document.createElement("small");
+    widthNote.dataset.widthNominal = "";
+    widthInput.closest(".form-group").appendChild(widthNote);
+    if (savedData && savedData.effectiveWidthVersion !== 1) {
+        const review = document.createElement("small");
+        review.dataset.widthReview = "";
+        review.textContent = "Lebar tersimpan versi lama belum dikonfirmasi sebagai lebar efektif. Tentukan ulang melalui bantuan atau input manual.";
+        widthInput.closest(".form-group").appendChild(review);
+    }
+}
 if (
     type === "bulldozer" ||
     type === "excavator" ||
@@ -651,7 +674,26 @@ updateCustomModelInput();
         `[data-field="${capacityField}"]`
     );
 
-    function updateEquipmentCapacity() {
+    function updateEquipmentCapacity(event) {
+    if (effectiveWidthField) {
+        const model = config.models[Number(modelSelect.value)];
+        const text = modelSelect.value === "custom" ? "" :
+            (type === "motorgrader" ? model?.specifications?.bladeWidth : model?.specifications?.compactionWidth) || "";
+        const match = text.match(/[\d.,]+/);
+        const nominal = match ? Number(match[0].replace(",", ".")) : null;
+        const note = section.querySelector("[data-width-nominal]");
+        note.dataset.nominal = nominal || "";
+        note.textContent = (nominal ? "Ukuran nominal katalog: " + nominal.toLocaleString("id-ID") + " m. " : "Ukuran nominal katalog belum tersedia. ") +
+            "Lebar efektif harus ditentukan melalui bantuan atau input manual.";
+        capacityInput.readOnly = false;
+        if (event) {
+            capacityInput.value = "";
+            const help = section.parameterHelp[effectiveWidthField];
+            if (help) help.contextChanged = true;
+        }
+        calculateProductivity(section, type);
+        return;
+    }
     // Jika pengguna memilih input alat sendiri
     if (modelSelect.value === "custom") {
         capacityInput.value = "";
@@ -736,7 +778,7 @@ if (capacityMatch) {
 // Atur tampilan dan kapasitas berdasarkan model yang dipulihkan
 updateCustomModelInput();
 
-if (modelSelect.value === "custom") {
+if (modelSelect.value === "custom" && !effectiveWidthField) {
     capacityInput.readOnly = false;
     capacityInput.placeholder = "Masukkan kapasitas alat";
 } else {
@@ -745,28 +787,7 @@ if (modelSelect.value === "custom") {
 
 // Hitung ulang berdasarkan nilai input yang sudah dipulihkan
 calculateProductivity(section, type);
-    if (type === "motorgrader") {
-    function updateGraderWidth() {
-        const selectedModel = config.models[Number(modelSelect.value)];
-        const bladeWidth = selectedModel?.specifications?.bladeWidth || "";
-        const widthMatch = bladeWidth.match(/[\d.,]+/);
-
-        if (widthMatch) {
-            const widthInput = section.querySelector(
-                '[data-field="graderWidth"]'
-            );
-
-            widthInput.value = Number(
-                widthMatch[0].replace(",", ".")
-            );
-        }
-
-        calculateProductivity(section, type);
-    }
-
-    modelSelect.addEventListener("change", updateGraderWidth);
-    updateGraderWidth();
-}
+    // Effective widths stay editable and are never overwritten by nominal dimensions.
 }
         mountProductivityParameterHelper({
             section, type, canEdit,
@@ -988,7 +1009,9 @@ function getTextValue(section, fieldId) {
         formulaResult.textContent = formula;
 
         statusResult.textContent =
-            "Perhitungan berhasil diperbarui.";
+            "Estimasi produktivitas berdasarkan parameter dan asumsi; bukan jaminan hasil aktual." +
+            (type === "excavator" ? " Koreksi Fv belum diterapkan secara eksplisit; asumsi Fv = 1 (Tabel A.12)." : "") +
+            (type === "bulldozer" ? " Koreksi kemiringan Fm belum diterapkan secara eksplisit; asumsi Fm = 1 (datar, 0%)." : "");
             // ==========================================
 // SIMPAN HASIL PRODUKTIVITAS KE PROYEK AKTIF
 // ==========================================

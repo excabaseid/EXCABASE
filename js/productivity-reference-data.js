@@ -17,6 +17,16 @@
     });
     const standardEfficiency = [["baik", "Baik — 0,83", .83], ["sedang", "Sedang — 0,75", .75],
         ["kurang", "Kurang baik — 0,67", .67], ["buruk", "Buruk — 0,58", .58]];
+    // Keep existing option IDs so saved assistance inputs remain readable.
+    const excavatorEfficiency = [["baik", "Baik — 0,83", .83], ["sedang", "Sedang — 0,75", .75],
+        ["kurang", "Agak kurang — 0,67", .67], ["buruk", "Kurang — 0,58", .58]];
+    // A.15: nominal blade length, effective width at 60°, effective width at 45° (m).
+    const graderWidths = [[2.2,1.9,1.6],[2.5,2.2,1.8],[2.8,2.4,2],[3.05,2.6,2.2],
+        [3.1,2.7,2.2],[3.4,2.9,2.4],[3.7,3.2,2.6],[4,3.5,2.8],[4.3,3.7,3],[4.9,4.2,3.5]];
+    const compactorOverlaps = [["road","Road roller",.2],["tire","Tire roller",.15],
+        ["vbesar","Vibrating roller besar",.2],["vkecil","Vibrating roller kecil",.1],
+        ["soil","Soil compactor (lebar roda drive)",.2],["macadam","Macadam / three wheel roller",.2],
+        ["tandem","Tandem roller",.15]];
     const excavatorCycles = [
         [[10.8,14.6],[14.6,18.4],[13,17.5],[17.5,22.1],[16.6,22.4],[22.4,28.2]],
         [[14.4,18.2],[18.2,22.1],[18.3,23.3],[23.3,28.2],[22.3,28.3],[28.3,34.4]],
@@ -52,21 +62,36 @@
     const travelFields = [number("distance", "Jarak satu arah", "m", 0, false),
         number("loadedSpeed", "Kecepatan bermuatan/maju", "km/jam"),
         number("returnSpeed", "Kecepatan kosong/mundur", "km/jam")];
+    const truckSpeedGuide = {
+        source:source(25,"Tabel A.9 — Kecepatan Tempuh Rata-rata Maksimum Dump Truck"), unit:"km/jam", kind:"maximum",
+        note:"Tabel A.9 memberikan maksimum perkiraan umum, bukan rentang minimum–maksimum. Pilih kecepatan positif tidak melebihi maksimum menurut medan, jalan, cuaca, dan kondisi kendaraan. Medan isi dan kembali harus dipertimbangkan masing-masing; pilih kondisi untuk setiap arah perjalanan. Bukan kecepatan yang otomatis tercapai.",
+        rows:[["datar","Datar",null,40,null,60],["menanjak","Menanjak",null,20,null,40],["menurun","Menurun",null,20,null,40]]
+    };
+    const loaderSpeedGuide = {
+        source:source(42,"Tabel A.23 — Kecepatan Laju Wheel Loader"), unit:"km/jam", kind:"range",
+        note:"Pilih sendiri nilai dalam rentang berdasarkan kondisi lintasan; tidak mengambil nilai tengah otomatis. Baik: permukaan keras/rata tanpa rintangan. Sedang: sedikit tidak rata dan ada 1–2 alat lain. Agak sulit: tidak rata dan banyak rintangan. Sulit: banyak gundukan dan alat lain bekerja.",
+        rows:[["baik","Baik",10,23,12,24],["sedang","Sedang",10,18,11,19],["agak","Agak sulit",10,15,10,16],["sulit","Sulit",9,12,9,14]]
+    };
     const methods = {
         excavator: [
             range("fill", "Pilih bucket fill factor", "fillFactor", "", source(28,"Tabel A.10"),
                 [["mudah","Mudah: 1,10–1,20",1.1,1.2],["sedang","Sedang: 1,00–1,10",1,1.1],
                     ["agak","Agak sulit: 0,90–1,00",.9,1],["sulit","Sulit: 0,80–0,90",.8,.9]],
-                "Rentang bukan angka tunggal. Pilih berdasarkan kondisi material; tidak menerapkan Fv."),
+                "Rentang bukan angka tunggal. Pilih berdasarkan kondisi material. Rumus utama belum menerapkan koreksi kedalaman/dumping Fv secara eksplisit dan menggunakan asumsi Fv = 1 (Tabel A.12, halaman PDF 29)."),
             range("cycle", "Pilih waktu siklus standar", "cycleTime", "detik", source(29,"Tabel A.11"), cycleRows,
                 "Rentang bergantung bucket, tanah dan swing. Batas kelas yang bersinggungan dipilih secara eksplisit; tidak mengambil rata-rata otomatis. Contoh numerik excavator dalam dokumen tidak konsisten dengan uraian parameternya."),
-            fixed("efficiency", source(30,"Tabel A.13"), standardEfficiency)
+            fixed("efficiency", source(30,"Tabel A.13"), excavatorEfficiency)
         ],
         dumptruck: [
+            {id:"loading",title:"Estimasi waktu muat dari produktivitas alat pemuat",target:"truckLoadingTime",targetHelper:"cycle",unit:"menit",kind:"truck-loading",
+                source:source(22,"Waktu muat dari produktivitas alat pemuat; contoh Excavator PDF 22 dan Wheel Loader PDF 25"),
+                fields:[number("loadVolume","Volume muatan lepas","m³ LCM"),number("loaderProductivity","Produktivitas efektif alat pemuat","m³ LCM/jam")],
+                note:"Waktu muat = 60 × volume muatan LCM / produktivitas efektif alat pemuat LCM per jam. Bentuk volume setara dengan kapasitas ton dibagi berat isi lepas pada referensi PDF 22 dan 25. Gunakan volume muatan yang dapat diangkut sesuai batas payload, bukan otomatis seluruh bak. Produktivitas alat pemuat diisi pengguna; tidak diambil otomatis dari kalkulator lain. Hindari menghitung hambatan yang sama kembali sebagai antrean/efisiensi. Hasil hanya mengisi komponen waktu muat pada bantuan siklus, bukan waktu siklus total."},
             { id:"cycle", title:"Hitung siklus angkut", target:"truckCycleTime", unit:"menit", kind:"truck-cycle",
-                source:source(23,"Bagian Dump Truck; persamaan (27), komponen siklus; lihat juga persamaan (15), halaman PDF 9"),
-                fields:[...travelFields,number("loading","Waktu muat aktual","menit"),number("other","Bongkar, manuver dan antrean","menit",0,false)],
-                note:"Ts = waktu muat + 60L/vF + 60L/vR + waktu lain; L dikonversi m ke km. Waktu lain diukur; contoh dokumen 2,0 menit berbeda dari rentang waktu pasti 1,25–1,65 menit. Jangan hitung antrean dua kali." },
+                speedGuide:truckSpeedGuide,
+                source:source(22,"Bagian Dump Truck; persamaan (27), keterangan berlanjut pada halaman PDF 23; lihat juga persamaan (15), halaman PDF 9"),
+                fields:[...travelFields,number("loading","Waktu muat (estimasi atau pengamatan)","menit"),number("other","Bongkar, manuver dan antrean","menit",0,false)],
+                note:"Ts = waktu muat + 60L/vF + 60L/vR + waktu lain; L dikonversi m ke km. Untuk rencana, jelaskan dasar asumsi waktu lain; untuk aktual, gunakan pengamatan. Contoh dokumen 2,0 menit berbeda dari rentang waktu pasti 1,25–1,65 menit. Jangan hitung antrean dua kali." },
             fixed("truckEfficiency",source(24,"Tabel A.8"),[["baik","Baik — 0,83",.83],["sedang","Sedang — 0,80",.8],["kurang","Kurang baik — 0,75",.75],["buruk","Buruk — 0,70",.7]])
         ],
         wheelloader: [
@@ -75,12 +100,18 @@
                 "Kondisi penumpahan dijelaskan pada Tabel A.18, halaman PDF 40. Data track loader tidak digunakan."),
             ...loaderMethods,
             {id:"travel-cycle",title:"Hitung siklus perjalanan jauh",target:"loaderCycleTime",unit:"detik",kind:"loader-cycle",
+                speedGuide:loaderSpeedGuide,
                 source:source(42,"Persamaan (30e); Tabel A.23 untuk panduan kecepatan"),
                 fields:[...travelFields,number("fixed","Waktu tetap Z","menit")],
-                note:"Ts = L/vF + L/vR + Z setelah kecepatan menjadi m/menit; hasil menit dikali 60. Z referensi 0,60–0,75 menit atau hasil pengukuran. Isi kecepatan aktual; tidak menyalin contoh yang satuannya tidak konsisten."},
+                note:"Ts = L/vF + L/vR + Z setelah kecepatan menjadi m/menit; hasil menit dikali 60. Z referensi 0,60–0,75 menit atau hasil pengukuran. Isi kecepatan asumsi rencana yang dijelaskan atau hasil pengamatan; tidak menyalin contoh yang satuannya tidak konsisten."},
             fixed("loaderEfficiency",source(43,"Tabel A.24"),[["baik","Baik — 0,83",.83],["sedang","Sedang — 0,80",.8],["agak","Agak buruk — 0,75",.75],["buruk","Buruk — 0,70",.7]])
         ],
         motorgrader: [
+            {id:"effective-width",title:"Pilih lebar efektif blade (Tabel A.15)",target:"graderWidth",unit:"m",kind:"grader-width",
+                source:source(35,"Tabel A.15"), widths:graderWidths,
+                fields:[choice("nominal","Panjang blade nominal (m)",graderWidths.map(row=>[String(row[0]),String(row[0])])),
+                    choice("angle","Sudut blade",[["60","60°"],["45","45°"]])],
+                note:"Lebar efektif diambil persis dari Tabel A.15 sesuai panjang nominal dan sudut 45° atau 60°. Tanpa interpolasi; panjang di luar tabel memakai input lebar efektif manual. Overlap antar lajur dan waktu manuver belum dimodelkan eksplisit dalam rumus utama."},
             range("speed","Pilih kecepatan operasi","graderSpeed","km/jam",source(35,"Tabel A.14"),
                 [["jalan","Perbaikan jalan: 2–6",2,6],["tepi","Tepi sungai/saluran: 1,6–2,6",1.6,2.6],["bentuk","Membentuk permukaan: 1,6–4",1.6,4],["parit","Penggalian parit: 1,6–4",1.6,4],["rata","Perataan permukaan: 2–8",2,8]],
                 "Kecepatan dipilih dalam rentang kondisi operasi. Metode grader, lebar blade, overlap, Fk dan basis volume tidak diubah."),
@@ -92,22 +123,33 @@
         bulldozer: [
             range("fill","Pilih blade fill factor","dozerFillFactor","",source(17,"Tabel A.7"),
                 [["mudah","Mudah: 0,90–1,10",.9,1.1],["sedang","Sedang: 0,70–0,90",.7,.9],["agak","Agak sulit: 0,60–0,70",.6,.7],["sulit","Sulit: 0,40–0,60",.4,.6]],
-                "Tabel mencetak beberapa rentang dalam urutan menurun; rentang ditampilkan menaik. Tidak menerapkan Fm."),
+                "Tabel mencetak beberapa rentang dalam urutan menurun; rentang ditampilkan menaik. Rumus utama belum menerapkan faktor kemiringan Fm secara eksplisit dan menggunakan asumsi Fm = 1 (datar, 0%)."),
             {id:"cycle",title:"Hitung siklus dorong",target:"dozerCycleTime",unit:"detik",kind:"dozer-cycle",source:source(16,"Keterangan persamaan (23a–b)"),
                 fields:[...travelFields,choice("transmission","Transmisi",[["dd","Direct Drive: Z 0,10 menit"],["tc","Torque Converter: Z 0,05 menit"]])],
-                note:"Ts = perjalanan maju + mundur + Z. Jarak meter dikonversi ke kilometer sebelum dibagi km/jam; hasil menit dikali 60. Normalisasi satuan diperlukan pada rumus tercetak. Faktor kemiringan Fm tidak diterapkan."},
+                note:"Ts = perjalanan maju + mundur + Z. Jarak meter dikonversi ke kilometer sebelum dibagi km/jam; hasil menit dikali 60. Normalisasi satuan diperlukan pada rumus tercetak. Rumus utama menggunakan asumsi Fm = 1 (datar, 0%); faktor kemiringan belum diterapkan secara eksplisit."},
             fixed("dozerEfficiency",source(17,"Tabel A.6"),standardEfficiency)
         ],
         compactor: [
+            {id:"effective-width",title:"Hitung lebar efektif pemadatan",target:"compactorWidth",unit:"m",kind:"compactor-width",
+                source:source(47,"Tabel A.25"), overlaps:compactorOverlaps,
+                fields:[choice("roller","Jenis alat pemadat",compactorOverlaps.map(row=>[row[0],row[1]])),
+                    number("nominal","Lebar roda total / drum; khusus soil compactor: roda drive","m")],
+                note:"be = b − overlap sesuai jenis alat pada Tabel A.25. Pilih jenis alat secara eksplisit, bukan dari merek. Jika jenis atau lebar acuannya belum pasti, isi lebar efektif secara manual pada input utama. Tebal lapisan menggunakan tebal akhir setelah pemadatan; hasil berbasis CCM."},
             range("speed","Pilih kecepatan pemadatan","compactorSpeed","km/jam",source(47,"Tabel A.25"),
                 [["vbesar","Vibrating roller besar: 1,5–4",1.5,4],["vkecil","Vibrating roller kecil: 1–3",1,3],["soil","Soil compactor: 4–10",4,10]],
                 "Pilih jenis pemadat sesuai alat, bukan hanya nama merek. Nilai aktual tetap harus sesuai kondisi lapangan."),
             range("passes","Pilih jumlah lintasan","compactorPasses","lintasan",source(47,"Tabel A.25"),
                 [["road","Road roller: 3–5",3,5],["tire","Tire roller: 4–8",4,8],["vibratory","Vibrating roller / soil compactor: 4–12",4,12],["macadam","Macadam roller: 6–8",6,8],["tandem","Tandem: 2 awal + 4–8 akhir (total 6–10)",6,10]],
-                "Bilangan bulat. Jumlah aktual harus dibuktikan dengan hasil pemadatan. Tebal akhir tetap diukur; Tabel A.26 halaman PDF 48 memberi batas maksimum, bukan tebal otomatis. Overlap dan rumus utama tidak diubah.")
+                "Bilangan bulat. Jumlah aktual harus dibuktikan dengan hasil pemadatan. Tebal akhir rencana perlu diverifikasi di lapangan; Tabel A.26 halaman PDF 48 memberi batas maksimum, bukan tebal otomatis. Gunakan lebar efektif setelah overlap pada rumus utama.")
         ]
     };
     // Practical explanations of the table context, not quotations or new selection rules.
+    for (const method of methods.excavator) {
+        if (!method.note.includes("Fv = 1")) method.note += " Rumus utama belum menerapkan koreksi kedalaman/dumping Fv secara eksplisit; asumsi Fv = 1 (Tabel A.12, halaman PDF 29).";
+    }
+    for (const method of methods.bulldozer) {
+        if (!method.note.includes("Fm = 1")) method.note += " Rumus utama belum menerapkan faktor kemiringan Fm secara eksplisit; asumsi Fm = 1 (datar, 0%).";
+    }
     const fillDescriptions = {
         excavator: {
             mudah: "Tanah atau material lepas mudah dikeruk dan dapat mengisi bucket hingga munjung tanpa tambahan daya gali yang besar.",
@@ -133,7 +175,7 @@
             baik: "Penggalian dan penumpahan excavator berlangsung lancar dengan sedikit gangguan operasi.",
             sedang: "Penggalian dan penumpahan excavator mengalami beberapa jeda sehingga waktu kerja efektif berkurang.",
             kurang: "Hambatan saat menggali, memutar atau menumpahkan material cukup sering mengurangi waktu efektif excavator.",
-            buruk: "Gangguan operasi excavator dominan sehingga hanya sebagian kecil waktu tersedia yang digunakan secara efektif."
+            buruk: "Kondisi operasi kurang pada Tabel A.13 menggunakan efisiensi 0,58; sesuaikan dengan hambatan penggalian dan penumpahan."
         },
         dumptruck: {
             baik: "Pemuatan, perjalanan dan pembongkaran dump truck terkoordinasi dengan sedikit gangguan di luar komponen siklus.",
@@ -186,7 +228,14 @@
             for (const field of method.fields.filter(field => field.options)) {
                 field.descriptions = Object.fromEntries(field.options.map(([key]) => {
                     let text;
-                    if (field.id === "transmission") {
+                    if (method.kind === "grader-width") {
+                        text = field.id === "angle"
+                            ? "Sudut blade " + key + "° memakai kolom yang bersesuaian pada Tabel A.15; bukan panjang blade nominal."
+                            : "Panjang blade nominal " + key + " m pada Tabel A.15. Cocokkan dengan spesifikasi alat; nilai di luar tabel diisi manual tanpa interpolasi.";
+                    } else if (method.kind === "compactor-width") {
+                        const row = compactorOverlaps.find(row=>row[0]===key);
+                        text = row[1] + " menggunakan overlap " + row[2] + " m pada Tabel A.25. Pastikan lebar acuan sesuai jenis roda alat.";
+                    } else if (field.id === "transmission") {
                         text = key === "dd"
                             ? "Transmisi Direct Drive menggunakan waktu tetap untuk perpindahan/transmisi dalam siklus dorong. Pilih sesuai transmisi bulldozer yang digunakan."
                             : "Transmisi Torque Converter menggunakan waktu tetap yang berbeda dari Direct Drive. Pilih sesuai transmisi bulldozer yang digunakan.";

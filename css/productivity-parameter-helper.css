@@ -6,6 +6,9 @@
 .parameter-helper input, .parameter-helper select { width: 100%; min-width: 0; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; }
 .parameter-helper p, .parameter-helper a { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 .parameter-helper button:disabled { opacity: .5; cursor: not-allowed; }
+.parameter-helper textarea { width: 100%; min-width: 0; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; resize: vertical; }
+.parameter-helper .parameter-helper-manual { display: flex; align-items: center; }
+.parameter-helper .parameter-helper-manual input { width: auto; flex: 0 0 auto; }
 .parameter-helper .calculator-buttons { flex-wrap: wrap; margin: 0; }
 .parameter-helper .parameter-condition-description { display: block; color: #64748b; font-size: 12px; font-weight: 400; line-height: 1.6; overflow-wrap: anywhere; }
 @media (max-width: 600px) { .parameter-helper .calculator-buttons button { width: 100%; } }
