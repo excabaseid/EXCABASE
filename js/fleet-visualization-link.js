@@ -9,7 +9,8 @@
         source = event.detail;
         link.setAttribute('aria-disabled', String(!source));
         if (source) {
-            link.href = 'fleet-visualization.html?fromProject=1&projectId=' + encodeURIComponent(source.projectId) + '&scenario=' + source.selected;
+            link.href = 'fleet-visualization.html?fromProject=1&projectId=' + encodeURIComponent(source.projectId) + '&scenario=' + source.selected +
+                (source.handoffId ? '&handoff=' + encodeURIComponent(source.handoffId) : '');
             status.textContent = 'Visualisasi opsional memakai skenario ' + data.names[source.selected] + ' yang sedang dipilih. Data proyek tidak diubah.';
         } else {
             link.href = '#';
@@ -19,6 +20,7 @@
     document.addEventListener('excabase:fleet-visualization', accept);
     link.addEventListener('click', event => {
         try {
+            document.dispatchEvent(new CustomEvent('excabase:request-fleet-visualization'));
             if (!source) throw new Error('Hasil skenario terpilih belum siap. Klik Hitung Semua Skenario.');
             data.verify(source, getExcabaseActiveProject());
             // A tab-local handoff, never a new project result or saved scenario.

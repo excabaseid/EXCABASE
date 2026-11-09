@@ -9,7 +9,8 @@
         }
         setContext(context) {
             this.model = context;
-            const cols = Math.min(8, Math.ceil(Math.sqrt(context.excavatorCount)));
+            const cols = Math.max(1, Math.min(8, Math.ceil(Math.sqrt(context.excavatorCount))));
+            this.hasHauling = context.haulingEnabled !== false;
             this.bayCols = cols; this.bayRows = Math.ceil(context.excavatorCount / cols);
             this.queueCols = Math.max(5, Math.ceil(Math.sqrt(context.truckCount * 1.6)));
             this.queueRows = Math.ceil(context.truckCount / this.queueCols);
@@ -17,18 +18,25 @@
             this.disposalY = 5 + this.bayRows * 1.8;
             this.worldW = this.disposalX + 7;
             this.worldH = Math.max(this.bayRows * 3.8 + 9 + this.queueRows * 1.6, this.disposalY + 12);
+            const dozerCount=context.bulldozerCount||0;
+            this.dozerCols=Math.max(1,Math.min(4,Math.ceil(Math.sqrt(dozerCount))));
+            this.dozerRows=Math.ceil(dozerCount/this.dozerCols);
+            this.dozerY=this.hasHauling?this.worldH+4:Math.max(5,context.excavatorCount?this.bayRows*3.8+8:0,context.truckCount?this.queueRows*1.6+7:0);
+            if(!this.hasHauling){this.worldW=Math.max(18,this.queueCols*1.75+8,cols*3.7+6);this.worldH=this.dozerY;}
+            if(dozerCount){this.worldW=Math.max(this.worldW,this.dozerCols*12+5);this.worldH=this.dozerY+this.dozerRows*5.5+3;}
             this.hub = { x: cols * 3.7 + 6, y: 4 + this.bayRows * 1.8 };
             this.resize();
         }
         bay(id) { return { x: 4 + id % this.bayCols * 3.7, y: 4 + Math.floor(id / this.bayCols) * 3.8 }; }
-        parking(id) { return { x: 3 + id % this.queueCols * 1.75, y: this.bayRows * 3.8 + 8 + Math.floor(id / this.queueCols) * 1.6 }; }
+        parking(id) { return { x: 3 + id % this.queueCols * 1.75, y: (this.hasHauling?this.bayRows*3.8+8:this.bayRows*3.8+2) + Math.floor(id / this.queueCols) * 1.6 }; }
+        dozerLane(id) { return {x:3+id%this.dozerCols*12,y:this.dozerY+Math.floor(id/this.dozerCols)*5.5}; }
         loading(id) { const b = this.bay(id); return { x: b.x + 1.8, y: b.y + 1.1 }; }
         iso(x, y, z = 0) { return { x: this.ox + (x - y) * this.scale, y: this.oy + (x + y) * this.scale * .5 - z * this.scale }; }
         resize() {
             if (!this.ctx || !this.model) return;
             const rect = this.canvas.getBoundingClientRect();
             this.width = Math.max(1, rect.width); this.height = Math.max(1, rect.height);
-            this.dpr = Math.min(root.devicePixelRatio || 1, this.model.excavatorCount + this.model.truckCount > 120 ? 1 : 2);
+            this.dpr = Math.min(root.devicePixelRatio || 1, this.model.excavatorCount + this.model.truckCount + (this.model.bulldozerCount||0) > 120 ? 1 : 2);
             for (const c of [this.canvas, this.background]) { c.width = Math.round(this.width * this.dpr); c.height = Math.round(this.height * this.dpr); }
             this.scale = Math.min((this.width - 32) / (this.worldW + this.worldH), (this.height - 54) / ((this.worldW + this.worldH) * .5 + 4));
             this.ox = (this.width - (this.worldW - this.worldH) * this.scale) / 2;
@@ -69,19 +77,54 @@
             for(let x=0;x<this.worldW;x+=step)for(let y=0;y<this.worldH;y+=step){
                 if((Math.floor(x/step)+Math.floor(y/step))%2)this.ground([[x,y],[Math.min(x+step,this.worldW),y],[Math.min(x+step,this.worldW),Math.min(y+step,this.worldH)],[x,Math.min(y+step,this.worldH)]],'rgba(255,255,255,.045)');
             }
+            if(this.hasHauling){
             this.road([this.hub,{x:this.disposalX-6,y:this.hub.y},{x:this.disposalX,y:this.disposalY}],2.4,'#a6957e');
             this.road([{x:this.disposalX,y:this.disposalY},{x:this.disposalX-7,y:this.disposalY+6},{x:this.hub.x+1,y:this.hub.y+5},{x:this.hub.x-2,y:this.worldH-3}],2.1,'#b2a188');
             this.road([this.hub,{x:this.disposalX-6,y:this.hub.y},{x:this.disposalX,y:this.disposalY}],.06,'#e9d6ae');
+            }
             for(let i=0;i<this.model.excavatorCount;i++){
                 const b=this.bay(i);this.ground([[b.x-2,b.y-1.3],[b.x-.8,b.y-1.3],[b.x-.8,b.y+1],[b.x-2,b.y+1]],'#94714d');
                 this.ground([[b.x-1.8,b.y-1.1],[b.x-1,b.y-1.1],[b.x-1,b.y+.8],[b.x-1.8,b.y+.8]],'#775a40');
             }
-            this.ground([[this.disposalX-3,this.disposalY-3],[this.disposalX+4,this.disposalY-3],[this.disposalX+4,this.disposalY+3],[this.disposalX-3,this.disposalY+3]],'#c7ad87');
+            if(this.hasHauling)this.ground([[this.disposalX-3,this.disposalY-3],[this.disposalX+4,this.disposalY-3],[this.disposalX+4,this.disposalY+3],[this.disposalX-3,this.disposalY+3]],'#c7ad87');
+            for(let id=0;id<(this.model.bulldozerCount||0);id++){
+                const p=this.dozerLane(id);
+                this.ground([[p.x-1.5,p.y-1.5],[p.x+10,p.y-1.5],[p.x+10,p.y+1.5],[p.x-1.5,p.y+1.5]],'#bda584');
+                this.road([{x:p.x,y:p.y-.7},{x:p.x+8,y:p.y-.7}],.08,'#8b775e');
+                this.road([{x:p.x,y:p.y+.7},{x:p.x+8,y:p.y+.7}],.08,'#8b775e');
+            }
             // Boundary stakes give a scale cue without texture assets or animation.
             for(let x=2;x<this.worldW-2;x+=Math.max(4,this.worldW/10))this.box(x,1,.12,.12,.6,['#fff4cf','#b09860','#ded1a5']);
-            this.label(this.width<450?'GALIAN':'GALIAN / PEMUATAN',4,-1.2,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
-            this.label('DISPOSAL',this.disposalX,this.disposalY-4,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
-            this.label('ANTREAN ARMADA',Math.min(this.queueCols,8),this.worldH-1,0,'#624a31',9);
+            if(this.hasHauling){
+                this.label(this.width<450?'GALIAN':'GALIAN / PEMUATAN',4,-1.2,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
+                this.label('DISPOSAL',this.disposalX,this.disposalY-4,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
+            }
+            if(this.model.bulldozerCount)this.label('AREA DORONG · PEKERJAAN TERPISAH',this.dozerCols*6,this.dozerY-2,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
+            if(this.model.truckCount)this.label(this.hasHauling?'ANTREAN ARMADA':'TRUK SIAGA · TANPA PEMUAT',Math.min(this.queueCols,8),this.parking(this.model.truckCount-1).y+2,0,'#624a31',9);
+        }
+        dozerPosition(unit,time) {
+            const lane=this.dozerLane(unit.id),f=clamp((time-unit.start)/(unit.end-unit.start)||0);
+            const offset=unit.state==='approaching'?2*f:unit.state==='pushing'?2+5*f:unit.state==='returning'?7*(1-f):0;
+            return {x:lane.x+offset,y:lane.y};
+        }
+        bulldozer(unit,time,p) {
+            const moving=['approaching','pushing','returning'].includes(unit.state);
+            for(const side of [-.65,.65]){
+                this.box(p.x,p.y+side,2.4,.46,.43,['#53616c','#243445','#384957'],0,.08);
+                for(const x of [-.85,-.3,.3,.85]){
+                    const q=this.iso(p.x+x,p.y+side,.31),ctx=this.ctx;
+                    ctx.beginPath();ctx.ellipse(q.x,q.y,Math.max(.6,this.scale*.17),Math.max(.7,this.scale*.2),0,0,Math.PI*2);ctx.fillStyle='#91a0ab';ctx.fill();
+                }
+                if(moving){const shift=(time*3%1)*.3;this.box(p.x-.8+shift,p.y+side,.1,.48,.04,['#d6dce0','#53616c','#8e9ca7'],0,.51);}
+            }
+            this.box(p.x+.1,p.y,1.95,1.18,.65,['#f9c536','#b38a19','#d5a622'],0,.48);
+            this.box(p.x-.38,p.y,.9,1.04,.85,['#c5e2ec','#25485f','#4e748a'],0,1.02);
+            this.box(p.x-.38,p.y,1.08,1.18,.14,['#fce197','#b58d20','#d5ac38'],0,1.87);
+            this.box(p.x+.92,p.y,1.1,.17,.15,['#8599a7','#435e70','#657b8a'],0,.5);
+            const raised=(unit.state==='returning'||unit.state==='standby') ? .3 : 0;
+            this.box(p.x+1.58,p.y,.28,2.05,.8,['#edf1f4','#708796','#b6c3cc'],0,.13+raised);
+            if(unit.state==='pushing'&&unit.load>0)this.box(p.x+2.05,p.y,.65,1.65,.5,['#bd9868','#795b38','#9b7549'],0,.02);
+            if(this.scale>=5)this.label('B'+(unit.id+1),p.x,p.y,2.25,'#102a43',Math.max(7,Math.min(10,this.scale*.75)));
         }
         route(t) {
             const start=this.loading(t.excavatorId ?? 0), end={x:this.disposalX,y:this.disposalY};
@@ -131,18 +174,30 @@
             if(!this.ctx||!this.model)return;
             const ctx=this.ctx;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,this.canvas.width,this.canvas.height);ctx.drawImage(this.background,0,0);
             ctx.setTransform(this.dpr,0,0,this.dpr,0,0);
-            const progress=engine?engine.delivered/engine.config.volumeLCM:0;
+            const progress=engine&&engine.config.volumeLCM>0?engine.delivered/engine.config.volumeLCM:0;
             const pileX=this.disposalX+1.8,pileY=this.disposalY-1.1,height=.12+progress*2.2;
+            if(this.hasHauling){
             this.polygon([this.iso(pileX-1.7,pileY,0),this.iso(pileX,pileY-1.5,0),this.iso(pileX,pileY,height)],'#b08755');
             this.polygon([this.iso(pileX,pileY-1.5,0),this.iso(pileX+1.7,pileY,0),this.iso(pileX,pileY,height)],'#c8a574');
             this.polygon([this.iso(pileX+1.7,pileY,0),this.iso(pileX,pileY+1.5,0),this.iso(pileX-1.7,pileY,0),this.iso(pileX,pileY,height)],'#967047');
+            }
             const trucks=engine?engine.trucks:Array.from({length:this.model.truckCount},(_,id)=>({id,state:'standby',load:0}));
             const excavators=engine?engine.excavators:Array.from({length:this.model.excavatorCount},(_,id)=>({id,truckId:null}));
             const time=engine?.time||0;
             const actors=trucks.map(t=>{const p=this.position(t,time);return {depth:p.x+p.y,draw:()=>this.truck(t,time,engine?.config.truckCapacity||1,p)};});
             excavators.forEach(ex=>{const b=this.bay(ex.id);actors.push({depth:b.x+b.y,draw:()=>this.excavator(ex,time)});});
+            const bulldozers=engine?.bulldozers||[];
+            const pushed=engine?.dozer?engine.dozer.pushed/engine.dozer.config.volume:0;
+            for(let id=0;id<(this.model.bulldozerCount||0);id++){
+                const lane=this.dozerLane(id);
+                this.box(lane.x+3.6,lane.y,.7,1.8,.15+(1-pushed)*.45,['#b89668','#765936','#947248']);
+                this.box(lane.x+9,lane.y,1.3,2,.12+pushed*.85,['#c5a16e','#795b38','#a27d50']);
+            }
+            // Inactive Bulldozer models remain parked, without fictional work.
+            const units=bulldozers.length?bulldozers:Array.from({length:this.model.bulldozerCount||0},(_,id)=>({id,state:'standby',load:0,start:0,end:0}));
+            units.forEach(unit=>{const p=this.dozerPosition(unit,engine?.dozer?.time||0);actors.push({depth:p.x+p.y,draw:()=>this.bulldozer(unit,engine?.dozer?.time||0,p)});});
             actors.sort((a,b)=>a.depth-b.depth).forEach(a=>a.draw());
-            if(this.scale<5){ctx.fillStyle='rgba(255,255,255,.92)';ctx.fillRect(10,this.height-29,this.width-20,22);ctx.font='11px Arial';ctx.textAlign='center';ctx.fillStyle='#102a43';ctx.fillText(this.model.excavatorCount+' Excavator + '+this.model.truckCount+' Dump Truck · seluruh unit ditampilkan',this.width/2,this.height-14);}
+            if(this.scale<5){ctx.fillStyle='rgba(255,255,255,.92)';ctx.fillRect(10,this.height-29,this.width-20,22);ctx.font='11px Arial';ctx.textAlign='center';ctx.fillStyle='#102a43';ctx.fillText('E '+this.model.excavatorCount+' · T '+this.model.truckCount+' · B '+(this.model.bulldozerCount||0)+' · seluruh unit ditampilkan',this.width/2,this.height-14);}
         }
     }
     root.ExcabaseFleetRenderer=Renderer;

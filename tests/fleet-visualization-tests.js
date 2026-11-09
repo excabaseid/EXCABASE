@@ -65,6 +65,49 @@
         let invalidTiming=false;try{D.config(ctx,{...values,totalCycleMinutes:1},'total');}catch{invalidTiming=true;}assert(invalidTiming,'reject negative residual travel');
         const converted=JSON.parse(JSON.stringify(source));converted.scenarios.dasar.equipment.forEach(item=>{item.workVolume=288;item.workVolumeBasis='bcm';});assert(D.context(converted,project,'dasar').volumeLCM===360,'BCM converted using actual earthwork ratio');
         let missingPair=false;try{D.context(D.envelope(project,{dasar:{equipment:[project.results.estimate.equipment[0]]}},'dasar'),project,'dasar');}catch{missingPair=true;}assert(missingPair,'missing equipment pair is explicit');
+        // Exercise the real producer and link, not snapshots assembled by the test.
+        for(const extraTypes of [[],['bulldozer']]){
+            const actualInput=fixture();
+            for(const type of extraTypes){
+                actualInput.results.selectedEquipment.push('Bulldozer');
+                actualInput.results.productivity[type]={hourly:100,daily:800,volumeBasis:'lcm'};
+                actualInput.results.productivityInputs.bulldozer={fields:{dozerCycleTime:'60',dozerEfficiency:'.8'}};
+                actualInput.results.estimate.equipment.splice(1,0,{...actualInput.results.estimate.equipment[0],type,units:3,hourlyProductivity:100,totalHourlyProductivity:300,dailyProductivity:2400});
+            }
+            save(actualInput);
+            let producer=await open('pages/simulasi-armada.html?fromProject=1');
+            producer.getElementById('calculateFleetScenarioBtn').click();
+            const generated={};
+            for(const key of ['dasar','hemat','cepat']){
+                producer.getElementById('fleetSelectedScenario').value=key;
+                producer.getElementById('fleetSelectedScenario').dispatchEvent(new frame.contentWindow.Event('change'));
+                const oldHandoff=D.envelope(actualInput,{[key]:{equipment:[{type:'bulldozer',units:1}]}},key);
+                producer.dispatchEvent(new frame.contentWindow.CustomEvent('excabase:fleet-visualization',{detail:oldHandoff}));
+                const link=producer.getElementById('visualizeFleetLink');link.addEventListener('click',event=>event.preventDefault(),{once:true});link.click();
+                generated[key]={source:JSON.parse(sessionStorage.getItem(D.SESSION_KEY)),url:link.getAttribute('href')};
+                assert(generated[key].source.handoffId!==oldHandoff.handoffId,'navigation refreshes stale cached handoff '+key+'/'+extraTypes);
+                assert(new URL(link.href).searchParams.get('handoff')===generated[key].source.handoffId,'link identifies exact generated snapshot '+key+'/'+extraTypes);
+                assert(generated[key].source.scenarios[key].equipment.map(item=>item.type).join(',')===actualInput.results.estimate.equipment.map(item=>item.type).join(','),'real producer retains all rows '+key+'/'+extraTypes);
+            }
+            const unchanged=localStorage.getItem('excabase_active_project'),unchangedList=localStorage.getItem('excabase_projects');
+            for(const key of ['dasar','hemat','cepat']){
+                sessionStorage.setItem(D.SESSION_KEY,JSON.stringify(generated[key].source));
+                const viewDoc=await open('pages/'+generated[key].url),viewWindow=frame.contentWindow;
+                const expected=D.context(generated[key].source,actualInput,key);
+                assert(viewDoc.getElementById('fvError').hidden,'real handoff initializes '+key+'/'+extraTypes);
+                const diagnostic=viewWindow.ExcabaseFleetView.getDiagnostics();
+                assert(diagnostic.handoffMatches===true&&diagnostic.fingerprintMatches===true&&diagnostic.snapshot[key].rows.length===actualInput.results.estimate.equipment.length,'real handoff diagnostics match producer '+key+'/'+extraTypes);
+                assert(!JSON.stringify(diagnostic).includes(actualInput.id)&&!('fingerprint' in diagnostic),'diagnostics omit project identity and raw fingerprint');
+                assert(viewDoc.getElementById('fvScenarioName').textContent===D.names[key]&&viewDoc.getElementById('fvCounts').textContent===expected.excavatorCount+' / '+expected.truckCount+' unit'&&viewDoc.getElementById('fvTotal').textContent.includes('360'),'real handoff reads scenario counts volume '+key+'/'+extraTypes);
+                viewDoc.getElementById('fv-unloadMinutes').value='1';viewDoc.getElementById('fvForm').requestSubmit();
+                assert(!viewDoc.getElementById('fvPlay').disabled,'real handoff applies '+key+'/'+extraTypes);
+                const canvas=viewDoc.getElementById('fvCanvas'),initial=canvas.toDataURL();
+                viewDoc.getElementById('fvPlay').click();await wait(180);viewDoc.getElementById('fvPause').click();
+                assert(viewWindow.ExcabaseFleetView.getState().time>0&&canvas.toDataURL()!==initial,'real handoff canvas animates '+key+'/'+extraTypes);
+                assert(localStorage.getItem('excabase_active_project')===unchanged&&localStorage.getItem('excabase_projects')===unchangedList,'real handoff leaves project unchanged '+key+'/'+extraTypes);
+            }
+        }
+        save(project);
         let d=await open('pages/simulasi-armada.html?fromProject=1');
         assert(d.getElementById('visualizeFleetLink').getAttribute('aria-disabled')==='true','link unavailable before scenario results');
         d.getElementById('calculateFleetScenarioBtn').click();
@@ -86,6 +129,60 @@
         const savedResult=read().results.fleet.scenarios.cepat;
         for(const item of savedResult.equipment){const base=project.results.estimate.equipment.find(x=>x.type===item.type);assert(near(item.totalProductivity,item.units*base.hourlyProductivity)&&near(item.durationHours,base.workVolume/item.totalProductivity),'original scenario formulas remain unchanged '+item.type);}
         const projectBefore=JSON.stringify(read()),listBefore=localStorage.getItem('excabase_projects');
+        // Mixed snapshots must isolate unsupported models, for every scenario.
+        for (const extras of [[], ['bulldozer'], ['wheelloader'], ['bulldozer','wheelloader','motorgrader','compactor']]) {
+            const mixed=JSON.parse(JSON.stringify(sources.cepat));
+            for (const key of ['dasar','hemat','cepat']) {
+                mixed.scenarios[key].equipment.push(...extras.map(type=>({type,units:2,totalProductivity:999999,workVolumeBasis:'ccm',workVolume:17})));
+                sessionStorage.setItem(D.SESSION_KEY,JSON.stringify(mixed));
+                d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario='+key);
+                assert(d.getElementById('fvError').hidden,'mixed snapshot initializes '+key+'/'+extras.join(','));
+                d.getElementById('fv-unloadMinutes').value='1';d.getElementById('fvForm').requestSubmit();
+                const view=frame.contentWindow.ExcabaseFleetView;
+                assert(!d.getElementById('fvPlay').disabled,'mixed snapshot applies '+key+'/'+extras.join(','));
+                const baseline=D.context(sources.cepat,read(),key);
+                assert(view.getConfig().volumeLCM===baseline.volumeLCM&&view.getConfig().truckCount===baseline.truckCount&&view.getConfig().excavatorCount===baseline.excavatorCount,'unsupported productivity excluded '+key+'/'+extras.join(','));
+                if(extras.length)assert(/Belum didukung|Bulldozer belum dapat/.test(d.getElementById('fvEquipmentNotice').textContent),'visible inactive equipment notice '+key+'/'+extras.join(','));
+                const referenceValues=Object.fromEntries(Object.entries(baseline.params).map(([name,p])=>[name,p.value]));referenceValues.unloadMinutes=1;
+                assert(JSON.stringify(view.getConfig())===JSON.stringify(D.config(baseline,referenceValues,'total')),'mixed operational config identical to pair '+key+'/'+extras.join(','));
+                const canvas=d.getElementById('fvCanvas'),pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+                assert(pixels.some((v,i)=>i%4===3&&v>0),'mixed canvas painted '+key+'/'+extras.join(','));
+                d.getElementById('fvPlay').click();await wait(120);d.getElementById('fvPause').click();
+                assert(view.getState().time>0,'mixed snapshot plays '+key+'/'+extras.join(','));
+            }
+        }
+        const aliases=JSON.parse(JSON.stringify(sources.cepat));
+        aliases.scenarios.dasar.equipment.forEach(item=>{item.type=item.type==='excavator'?' Excavator ':'Dump Truck';});
+        const aliasContext=D.context(aliases,read(),'dasar');
+        assert(aliasContext.excavatorCount===2&&aliasContext.truckCount===4,'display names normalized in snapshot');
+        for(const broken of [{equipment:{excavator:{units:2},dumptruck:{units:4}}},{equipment:[{type:'excavator',quantity:2},{type:'dumptruck',units:4}]},{equipment:[{type:'excavator',units:2},{type:'bulldozer',units:3}]}]){
+            const malformed=JSON.parse(JSON.stringify(sources.cepat));malformed.scenarios.dasar=broken;
+            sessionStorage.setItem(D.SESSION_KEY,JSON.stringify(malformed));
+            d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario=dasar');
+            const diag=frame.contentWindow.ExcabaseFleetView.getDiagnostics();
+            assert(!d.getElementById('fvError').hidden&&d.getElementById('fvApply').disabled,'invalid integration data blocks operation');
+            assert(diag.error.includes('Hitung Semua Skenario')&&diag.snapshot.dasar.shape===(Array.isArray(broken.equipment)?'array':'object'),'invalid snapshot has actionable structural diagnostics');
+            assert(d.getElementById('fvScenarioName').textContent==='Dasar'&&d.getElementById('fvCounts').textContent==='—','invalid snapshot keeps scenario name without invented counts');
+            if(Array.isArray(broken.equipment)&&broken.equipment.length===2&&broken.equipment[1].type==='bulldozer')assert(diag.error.includes('ada di Estimasi'),'missing truck is distinguished from absent estimate pair');
+        }
+        sessionStorage.setItem(D.SESSION_KEY,JSON.stringify(sources.cepat));
+        d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario=dasar&handoff=old-snapshot');
+        assert(frame.contentWindow.ExcabaseFleetView.getDiagnostics().handoffMatches===false&&d.getElementById('fvError').textContent.includes('snapshot lama'),'overwritten handoff has distinct diagnostic');
+        for(const types of [['excavator'],['dumptruck'],['bulldozer','wheelloader','motorgrader','compactor'],[]]){
+            const incomplete=JSON.parse(JSON.stringify(sources.cepat));
+            incomplete.scenarios.dasar.equipment=types.map(type=>sources.cepat.scenarios.dasar.equipment.find(item=>item.type===type)||{type,units:2});
+            sessionStorage.setItem(D.SESSION_KEY,JSON.stringify(incomplete));
+            d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario=dasar');
+            assert(!d.getElementById('fvSceneMessage').hidden&&d.getElementById('fvSceneMessage').textContent.includes('kedua jenis alat'),'incomplete pair explains scene '+types.join(','));
+            assert(frame.contentWindow.getComputedStyle(d.getElementById('fvCanvas')).display==='none','incomplete pair replaces blank canvas '+types.join(','));
+            assert(d.getElementById('fvPlay').disabled&&d.getElementById('fvApply').disabled,'incomplete pair blocks operation '+types.join(','));
+            d.getElementById('fvScenario').value='hemat';d.getElementById('fvScenario').dispatchEvent(new frame.contentWindow.Event('change'));
+            assert(!d.getElementById('fvCanvas').hidden&&d.getElementById('fvSceneMessage').hidden,'valid scenario recovers after missing pair '+types.join(','));
+        }
+        sessionStorage.setItem(D.SESSION_KEY,JSON.stringify(aliases));
+        d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario=dasar');
+        assert(d.getElementById('fvError').hidden&&!d.getElementById('fvCanvas').hidden,'normalized snapshot initializes canvas');
+        assert(JSON.stringify(read())===projectBefore&&localStorage.getItem('excabase_projects')===listBefore,'mixed and missing pairs preserve project results');
         sessionStorage.setItem(D.SESSION_KEY,JSON.stringify(sources.cepat));
         d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario=cepat');
         assert(d.getElementById('fvCounts').textContent==='3 / 7 unit','view loads selected scenario');
@@ -138,6 +235,7 @@
         assert(!d.getElementById('fvError').hidden&&d.getElementById('fvPlay').disabled,'stale project blocks Play');
         sessionStorage.removeItem(D.SESSION_KEY);save(fixture());d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario=dasar');
         assert(!d.getElementById('fvError').hidden,'missing handoff has recovery message');
+        await window.runBulldozerAudit({assert,near,wait,open,fixture,save,read});
         assert(errors.length===0,'no browser errors: '+errors.join('; '));
         window.ExcabaseFleetTestPreview={project:JSON.parse(projectBefore),source:sources.cepat};
         output.textContent=JSON.stringify({passed:true,assertions:checks.length,widths:[360,390,768,1366,1920],lastChecks:checks.slice(-12)});

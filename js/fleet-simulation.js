@@ -165,6 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }));
     }
     selectedInput.addEventListener("change", publishVisualization);
+    // Refresh the read-only handoff from current calculated results at navigation time.
+    document.addEventListener("excabase:request-fleet-visualization", publishVisualization);
 
     equipment.forEach(function (item) {
         const units = Number(item.units);

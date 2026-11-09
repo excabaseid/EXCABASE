@@ -140,6 +140,6 @@
                 progress: Math.min(100, this.delivered / this.config.volumeLCM * 100), finished: this.finished, counts };
         }
     }
-    root.ExcabaseFleetEngine = { Engine, validate };
+    root.ExcabaseFleetEngine = { Engine, validate, EventQueue };
     if (typeof module !== 'undefined' && module.exports) module.exports = root.ExcabaseFleetEngine;
 })(typeof window !== 'undefined' ? window : globalThis);
