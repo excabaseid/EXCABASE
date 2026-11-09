@@ -192,6 +192,8 @@
             cursor: pointer;
             transition: .2s;
         }
+        #visualizeFleetLink { display: inline-flex; align-items: center; text-decoration: none; }
+        #visualizeFleetLink[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
 
         .fleet-btn-primary {
             background: #f0b400;
@@ -620,7 +622,10 @@
                         id="saveFleetScenarioBtn">
                     Simpan Skenario Terpilih
                 </button>
+                <a class="fleet-btn fleet-btn-secondary" id="visualizeFleetLink"
+                   href="#" aria-disabled="true" aria-describedby="fleetVisualizationStatus">Visualisasikan Armada</a>
             </div>
+            <p id="fleetVisualizationStatus" class="fleet-status">Hitung skenario terlebih dahulu untuk membuka visualisasi opsional.</p>
 
             <p id="fleetSaveStatus"
                class="fleet-status"></p>
@@ -629,7 +634,9 @@
     </div>
 
     <script src="../js/project-storage.js"></script>
+    <script src="../js/fleet-visualization-data.js"></script>
     <script src="../js/fleet-simulation.js"></script>
+    <script src="../js/fleet-visualization-link.js"></script>
     <script src="../js/project-lock.js"></script>
     <script src="../js/project-navigation.js"></script>
     <script src="../js/sidebar-manager.js"></script>

@@ -154,6 +154,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const scenarioResults = {};
 
+    // Optional read-only visualization handoff; scenario calculations stay unchanged.
+    function publishVisualization() {
+        if (!window.ExcabaseFleetData) return;
+        const latest = getExcabaseActiveProject();
+        const ready = latest && window.ExcabaseFleetData.fingerprint(latest) === window.ExcabaseFleetData.fingerprint(project) &&
+            scenarioResults[selectedInput.value];
+        document.dispatchEvent(new CustomEvent("excabase:fleet-visualization", {
+            detail: ready ? window.ExcabaseFleetData.envelope(project, scenarioResults, selectedInput.value) : null
+        }));
+    }
+    selectedInput.addEventListener("change", publishVisualization);
+
     equipment.forEach(function (item) {
         const units = Number(item.units);
 
@@ -396,6 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         body.innerHTML =
             unitsRow + costRow + durationRow + targetRow;
+        publishVisualization();
     }
 
     
@@ -794,6 +807,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Skenario " +
                 scenarioNames[selected] +
                 " berhasil disimpan ke proyek.";
+            publishVisualization();
         });
 
     // ========================================

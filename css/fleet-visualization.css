@@ -1,0 +1,62 @@
+/* Isolated Fleet Simulation surfaces; shared navigation and calculations are untouched. */
+.fleet-visualization .fv-page { padding: 28px; min-width: 0; color: #102a43; }
+.fv-page .page-header { margin-bottom: 24px; }
+.fv-page .page-header p { margin-top: 10px; line-height: 1.6; }
+.fv-page :is(button, .fv-button, input, select) { font: inherit; font-size: 14px; box-sizing: border-box; max-width: 100%; min-height: 44px; border-radius: 9px; }
+.fv-page :is(button, .fv-button) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border: 1px solid #f9c536; background: #f9c536; color: #102a43; font-weight: 700; cursor: pointer; text-decoration: none; line-height: 1.4; }
+.fv-page :is(button, .fv-button):disabled { cursor: not-allowed; opacity: .5; }
+.fv-page .fv-secondary, .fv-page #fvPause, .fv-page #fvReset { background: #fff; border-color: #cad4de; color: #102a43; }
+.fv-page :is(button, a, select, input, summary):focus-visible { outline: 3px solid #c89100; outline-offset: 3px; }
+.fv-page input, .fv-page select { width: 100%; padding: 10px 12px; border: 1px solid #b7c5d2; background: #fff; color: #102a43; }
+.fv-page label { display: block; font-size: 13px; font-weight: 700; line-height: 1.5; }
+.fv-page h2 { font-size: 20px; line-height: 1.4; }
+.fv-page h3 { font-size: 15px; margin: 20px 0 12px; }
+.fv-eyebrow { display: block; color: #40556b; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; margin-bottom: 7px; }
+.fv-project-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #fff; border-radius: 14px; background: #fff; }
+.fv-project-strip > div { min-width: 0; overflow-wrap: anywhere; }
+.fv-project-strip select { margin-top: 6px; min-width: 160px; }
+.fv-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 310px); gap: 20px; align-items: start; }
+.fv-scene-panel, .fv-info-panel, .fv-parameter-panel, .fv-model-notes { min-width: 0; border: 1px solid #d3dde5; border-radius: 16px; background: #fff; box-shadow: 0 8px 24px rgba(16,42,67,.07); }
+.fv-scene-panel { overflow: hidden; }
+.fv-scene-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 20px; }
+.fv-badge { background: #eef3f7; border: 1px solid #d3dde5; border-radius: 20px; padding: 6px 10px; font-size: 12px; font-weight: 700; }
+.fv-canvas-wrap { width: 100%; aspect-ratio: 1.5; min-height: 280px; max-height: 650px; background: #eaf0f4; }
+#fvCanvas { display: block; width: 100%; height: 100%; }
+.fv-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 14px 20px; font-size: 11px; line-height: 1.6; color: #40556b; border-bottom: 1px solid #e2e8ef; }
+.fv-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.fv-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.fv-yellow { background: #f9c536; }.fv-navy { background: #102a43; }
+.fv-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 16px 20px 0; }
+.fv-controls label { display: flex; align-items: center; gap: 8px; }
+.fv-controls select { width: 78px; }
+.fv-status { padding: 14px 20px 20px; font-size: 13px; color: #40556b; line-height: 1.7; overflow-wrap: anywhere; }
+.fv-info-panel { padding: 22px; background: #f8fafc; border-color: #fff; box-shadow: inset 0 1px 0 #fff, 0 8px 24px rgba(16,42,67,.09); }
+@supports ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
+    .fv-info-panel { background: rgba(255,255,255,.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+}
+.fv-progress-number { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: 10px 0; }
+.fv-progress-number strong { font-size: 34px; color: #102a43; }.fv-progress-number span { font-size: 12px; }
+#fvProgressBar { display: block; width: 100%; height: 8px; accent-color: #d9a513; margin-bottom: 20px; }
+.fv-metrics > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 11px 0; border-bottom: 1px solid #d7e0e7; font-size: 12px; line-height: 1.5; }
+.fv-metrics dt { color: #40556b; }.fv-metrics dd { font-weight: 700; overflow-wrap: anywhere; }
+.fv-truck-states { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.fv-truck-states > div { padding: 10px; background: #fff; border: 1px solid #d7e0e7; border-radius: 8px; }
+.fv-truck-states dt { font-size: 11px; color: #40556b; }.fv-truck-states dd { margin-top: 6px; font-size: 20px; font-weight: 700; }
+.fv-footnote { margin-top: 12px; font-size: 12px; line-height: 1.7; color: #40556b; overflow-wrap: anywhere; }
+.fv-log { padding-left: 18px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.fv-parameter-panel, .fv-model-notes { padding: 22px; margin-top: 20px; }
+.fv-page summary { min-height: 44px; padding: 10px 0; cursor: pointer; font-weight: 700; line-height: 1.5; }
+.fv-parameter-panel > p, .fv-model-notes li { font-size: 13px; line-height: 1.8; color: #40556b; }
+.fv-model-notes ul { padding-left: 20px; }
+.fv-page fieldset { min-width: 0; margin: 22px 0; padding: 18px; border: 1px solid #d7e0e7; border-radius: 12px; }
+.fv-page legend { padding: 0 8px; font-size: 14px; font-weight: 700; }
+.fv-field-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin: 16px 0; }
+.fv-field-grid[hidden] { display: none; }
+.fv-field-grid > div { min-width: 0; }.fv-field-grid input { margin: 7px 0; }
+.fv-field-grid small { display: block; font-size: 11px; color: #40556b; line-height: 1.6; }
+.fv-alert { padding: 16px 20px; border: 1px solid #e5b359; border-radius: 12px; background: #fff7df; color: #66470b; margin-bottom: 20px; line-height: 1.7; overflow-wrap: anywhere; }
+.fv-footer-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 24px; }
+@container excabase-main (max-width: 900px) { .fv-layout { grid-template-columns: minmax(0,1fr); }.fv-info-panel .fv-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 22px; } }
+@media (max-width: 1024px) { .fv-layout { grid-template-columns: minmax(0,1fr); }.fv-info-panel { -webkit-backdrop-filter: none; backdrop-filter: none; background: #f8fafc; }.fv-field-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 600px) { .fv-page :is(.fv-scene-heading,.fv-info-panel,.fv-parameter-panel,.fv-model-notes,.fv-project-strip) { padding: 16px; }.fv-field-grid { grid-template-columns: minmax(0,1fr); }.fv-page fieldset { padding: 12px; }.fv-project-strip > div { width: 100%; }.fv-project-strip > a,.fv-footer-nav > a { width: 100%; }.fv-info-panel .fv-metrics { grid-template-columns: minmax(0,1fr); }.fv-canvas-wrap { min-height: 260px; aspect-ratio: 1.15; }.fv-controls { padding: 14px 14px 0; gap: 8px; }.fv-controls button { flex: 1 1 78px; padding: 10px; }.fv-status { padding: 12px 14px 16px; } }
+@media screen { html.excabase-dark .fv-page :is(.fv-project-strip,.fv-scene-panel,.fv-info-panel,.fv-parameter-panel,.fv-model-notes) { background: #1b2b3d; border-color: #40536a; }.excabase-dark .fv-page :is(.fv-eyebrow,.fv-status,.fv-footnote,.fv-metrics dt,.fv-field-grid small,.fv-legend) { color: #b6c6d8; }.excabase-dark .fv-page .fv-truck-states > div { background: #122133; border-color: #40536a; } }

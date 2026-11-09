@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Simulation | EXCABASE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/ui-preferences.js"></script>
+    <link rel="stylesheet" href="../css/page-titles.css">
+    <link rel="stylesheet" href="../css/sidebar-shell.css">
+    <link rel="stylesheet" href="../css/fleet-visualization.css">
+</head>
+<body class="fleet-visualization">
+    <aside class="sidebar">
+        <div class="logo">EXCA<span>BASE</span></div>
+        <div class="tagline">HEAVY EQUIPMENT MANAGEMENT</div>
+        <nav class="menu" aria-label="Navigasi utama">
+            <div class="menu-title">OVERVIEW</div>
+            <a href="../index.html">▦ Dashboard</a>
+            <div class="menu-title">PROYEK</div>
+            <a href="proyek-aktif.html">▤ Proyek Aktif</a>
+            <div class="menu-title">TAHAPAN PROYEK</div>
+            <a href="kalkulator-volume-tanah.html?fromProject=1">▤ Pekerjaan Tanah</a>
+            <a href="rekomendasi.html?fromProject=1">▣ Opsi Alat Berat</a>
+            <a href="produktivitas.html?fromProject=1">∑ Produktivitas</a>
+            <a href="estimasi-proyek.html?fromProject=1">▧ Estimasi Proyek</a>
+            <a href="simulasi-armada.html?fromProject=1" class="active" aria-current="page">▥ Simulasi Armada</a>
+            <a href="analisis-laporan.html?fromProject=1">▤ Analisis &amp; Laporan</a>
+            <div class="menu-title">PENGATURAN</div>
+            <a href="pengaturan.html">⚙ Pengaturan</a>
+        </nav>
+    </aside>
+    <main class="main-content fv-page">
+        <header class="page-header">
+            <h1 class="excabase-page-title">EXCABASE Fleet Simulation</h1>
+            <p>Model antrean penggalian dan pengangkutan · Visualisasi opsional tahap Simulasi Armada</p>
+        </header>
+        <div id="fvError" class="fv-alert" role="alert" hidden></div>
+        <section class="fv-project-strip" aria-label="Sumber skenario">
+            <div><span class="fv-eyebrow">PROYEK AKTIF</span><h2 id="fvProjectName">Memuat proyek…</h2></div>
+            <div><label for="fvScenario">Skenario visualisasi</label><select id="fvScenario" disabled></select></div>
+            <a class="fv-button fv-secondary" href="simulasi-armada.html?fromProject=1">← Kembali ke Simulasi</a>
+        </section>
+        <div class="fv-layout">
+            <section class="fv-scene-panel" aria-labelledby="fvSceneTitle">
+                <div class="fv-scene-heading"><div><span class="fv-eyebrow">LIVE SITE MODEL · 2.5D</span><h2 id="fvSceneTitle">Galian → Disposal</h2></div><span id="fvRunBadge" class="fv-badge">Belum dimulai</span></div>
+                <div class="fv-canvas-wrap"><canvas id="fvCanvas" role="img" aria-label="Lokasi isometrik: Excavator memuat Dump Truck, truk mengangkut ke disposal dan kembali. Status tiap unit tersedia di panel informasi.">Browser Anda tidak mendukung Canvas. Status dan progres tetap tersedia pada panel informasi.</canvas></div>
+                <div class="fv-legend"><span><i class="fv-dot fv-yellow"></i>Excavator</span><span><i class="fv-dot fv-navy"></i>Dump Truck</span><span>Nomor E/T = satu unit · jalur ilustratif, bukan peta lapangan</span></div>
+                <div class="fv-controls" aria-label="Kontrol waktu simulasi">
+                    <button type="button" id="fvPlay" disabled>▶ Play</button>
+                    <button type="button" id="fvPause" disabled>Ⅱ Pause</button>
+                    <button type="button" id="fvReset" disabled>↺ Reset</button>
+                    <label for="fvSpeed">Kecepatan <select id="fvSpeed"><option value="1">1×</option><option value="2">2×</option><option value="5">5×</option><option value="10">10×</option></select></label>
+                </div>
+                <p id="fvStatus" class="fv-status" role="status">Memeriksa hasil skenario dan parameter proyek…</p>
+            </section>
+            <aside class="fv-info-panel" aria-label="Informasi simulasi real-time">
+                <span class="fv-eyebrow">PROGRES MATERIAL · LCM</span>
+                <div class="fv-progress-number"><strong id="fvProgress">0%</strong><span>sampai di disposal</span></div>
+                <progress id="fvProgressBar" max="100" value="0" aria-label="Progres volume dibongkar"></progress>
+                <dl class="fv-metrics">
+                    <div><dt>Skenario aktif</dt><dd id="fvScenarioName">—</dd></div>
+                    <div><dt>Excavator / Dump Truck</dt><dd id="fvCounts">—</dd></div>
+                    <div><dt>Volume total</dt><dd id="fvTotal">—</dd></div>
+                    <div><dt>Sudah dipindahkan</dt><dd id="fvDelivered">0 m³</dd></div>
+                    <div><dt>Masih di armada</dt><dd id="fvInTransit">0 m³</dd></div>
+                    <div><dt>Volume tersisa*</dt><dd id="fvRemaining">—</dd></div>
+                    <div><dt>Waktu simulasi</dt><dd id="fvTime">00:00:00</dd></div>
+                    <div><dt>Hari kerja ekuivalen</dt><dd id="fvDays">0</dd></div>
+                </dl>
+                <p class="fv-footnote">*Termasuk muatan yang belum dibongkar. Volume dihitung sekali saat tiba dan selesai bongkar.</p>
+                <h3>Status Dump Truck</h3>
+                <dl class="fv-truck-states">
+                    <div><dt>Memuat</dt><dd id="fvLoading">0</dd></div><div><dt>Mengangkut</dt><dd id="fvHauling">0</dd></div>
+                    <div><dt>Membongkar</dt><dd id="fvUnloading">0</dd></div><div><dt>Kembali</dt><dd id="fvReturning">0</dd></div>
+                    <div><dt>Mengantre</dt><dd id="fvQueued">0</dd></div><div><dt>Siaga</dt><dd id="fvStandby">0</dd></div>
+                </dl>
+                <details><summary>Aktivitas terakhir</summary><ol id="fvLog" class="fv-log"><li>Belum ada aktivitas.</li></ol></details>
+            </aside>
+        </div>
+        <details id="fvParameters" class="fv-parameter-panel" open>
+            <summary>Parameter operasi &amp; sumber data</summary>
+            <p>Data skenario menentukan jumlah unit dan volume. Parameter tambahan hanya berlaku pada sesi visualisasi ini; hasil Estimasi, Simulasi, dan Laporan tidak ditimpa.</p>
+            <form id="fvForm">
+                <fieldset><legend>Pemuatan dan kapasitas · m³ LCM</legend><div id="fvEquipmentFields" class="fv-field-grid"></div></fieldset>
+                <fieldset><legend>Definisi siklus Dump Truck</legend>
+                    <label for="fvTimingMode">Sumber waktu perjalanan</label>
+                    <select id="fvTimingMode"><option value="total">Turunkan dari siklus TOTAL proyek</option><option value="segments">Isi rincian perjalanan langsung</option></select>
+                    <p class="fv-footnote">Mode total: perjalanan = siklus total − muat acuan − antrean acuan − bongkar. Muat dan antrean kemudian dihitung ulang oleh engine, sehingga tidak ditambahkan dua kali. Bila total lama sudah mengandung antrean, masukkan komponen antrean lamanya.</p>
+                    <div id="fvTotalFields" class="fv-field-grid" data-timing="total"></div>
+                    <div id="fvSegmentFields" class="fv-field-grid" data-timing="segments" hidden></div>
+                    <div id="fvUnloadFields" class="fv-field-grid"></div>
+                    <button type="button" id="fvDeriveLoading" class="fv-secondary">Hitung muat acuan dari bucket &amp; kapasitas saat ini</button>
+                </fieldset>
+                <button type="submit" id="fvApply">Terapkan &amp; reset simulasi</button>
+                <p id="fvTimingSummary" class="fv-footnote"></p>
+            </form>
+        </details>
+        <details class="fv-model-notes">
+            <summary>Asumsi dan batasan model versi pertama</summary>
+            <ul>
+                <li>Semua volume disetarakan menjadi LCM. BCM/CCM hanya dikonversi jika rasio aktual hasil Pekerjaan Tanah tersedia; volume kerja Excavator dan Dump Truck harus cocok.</li>
+                <li>Satu Excavator melayani satu truk, antrean FIFO bersama. Setiap unit ditampilkan. Bucket terakhir dan truk terakhir dapat berisi muatan parsial.</li>
+                <li>Siklus bucket efektif = siklus Excavator ÷ efisiensinya. Efisiensi Dump Truck hanya diterapkan sekali pada perjalanan dan bongkar; waktu muat tidak dikalikan efisiensi truk lagi.</li>
+                <li>Muat acuan yang diturunkan dari bucket memakai jumlah bucket bulat × siklus tanpa efisiensi. Bila siklus proyek memakai waktu muat efektif/pengamatan, koreksi muat acuan sesuai definisi sumbernya.</li>
+                <li>Antrean baru dihitung dari interaksi unit. Jangan memasukkan antrean yang sama dalam bongkar/manuver atau efisiensi tambahan.</li>
+                <li>Waktu adalah waktu kerja kontinu; hari ekuivalen = waktu ÷ jam kerja harian. Pergantian shift, kerusakan, lalu lintas, tumbukan, batas berat payload, variasi material, dan geometri jalan belum dimodelkan.</li>
+                <li>Jalur dan jarak visual bersifat ilustratif; posisi kendaraan mengikuti proporsi waktu perjalanan, bukan skala survei. Simulasi selesai setelah material dibongkar dan truk terakhir kembali.</li>
+                <li id="fvOtherEquipment">Alat selain Excavator dan Dump Truck tidak dioperasikan pada model ini.</li>
+                <li>Hasil model antrean ini dapat berbeda dari estimasi produktivitas independen tiap alat. Model ini tidak menggantikan skenario biaya atau durasi resmi proyek. Maksimal 2.000 unit gabungan pada versi pertama.</li>
+            </ul>
+        </details>
+        <nav class="fv-footer-nav" aria-label="Navigasi tahap Simulasi">
+            <a class="fv-button fv-secondary" href="simulasi-armada.html?fromProject=1">← Konfigurasi skenario</a>
+            <a class="fv-button" href="analisis-laporan.html?fromProject=1">Analisis &amp; Laporan →</a>
+        </nav>
+    </main>
+    <script src="../js/project-storage.js"></script>
+    <script src="../js/fleet-visualization-engine.js"></script>
+    <script src="../js/fleet-visualization-data.js"></script>
+    <script src="../js/fleet-visualization-renderer.js"></script>
+    <script src="../js/fleet-visualization.js"></script>
+    <script src="../js/sidebar-shell.js"></script>
+</body>
+</html>
