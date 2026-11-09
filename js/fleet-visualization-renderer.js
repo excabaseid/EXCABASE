@@ -25,22 +25,24 @@
             if(!this.hasHauling){this.worldW=Math.max(18,this.queueCols*1.75+8,cols*3.7+6);this.worldH=this.dozerY;}
             if(dozerCount){this.worldW=Math.max(this.worldW,this.dozerCols*12+5);this.worldH=this.dozerY+this.dozerRows*5.5+3;}
             this.hub = { x: cols * 3.7 + 6, y: 4 + this.bayRows * 1.8 };
+            root.ExcabaseFleetScene?.layout(this,context);
             this.resize();
         }
         bay(id) { return { x: 4 + id % this.bayCols * 3.7, y: 4 + Math.floor(id / this.bayCols) * 3.8 }; }
         parking(id) { return { x: 3 + id % this.queueCols * 1.75, y: (this.hasHauling?this.bayRows*3.8+8:this.bayRows*3.8+2) + Math.floor(id / this.queueCols) * 1.6 }; }
         dozerLane(id) { return {x:3+id%this.dozerCols*12,y:this.dozerY+Math.floor(id/this.dozerCols)*5.5}; }
-        loading(id) { const b = this.bay(id); return { x: b.x + 1.8, y: b.y + 1.1 }; }
+        loading(id) { if(this.model.loadingSource==='wheelloader')return root.ExcabaseFleetScene.loaderBay(this,id);const b = this.bay(id); return { x: b.x + 1.8, y: b.y + 1.1 }; }
         iso(x, y, z = 0) { return { x: this.ox + (x - y) * this.scale, y: this.oy + (x + y) * this.scale * .5 - z * this.scale }; }
         resize() {
             if (!this.ctx || !this.model) return;
             const rect = this.canvas.getBoundingClientRect();
             this.width = Math.max(1, rect.width); this.height = Math.max(1, rect.height);
-            this.dpr = Math.min(root.devicePixelRatio || 1, this.model.excavatorCount + this.model.truckCount + (this.model.bulldozerCount||0) > 120 ? 1 : 2);
+            this.dpr = Math.min(root.devicePixelRatio || 1, this.model.excavatorCount + this.model.truckCount + (this.model.bulldozerCount||0) + (this.model.loaderCount||0) + (this.model.graderCount||0) + (this.model.compactorCount||0) > 120 ? 1 : 2);
             for (const c of [this.canvas, this.background]) { c.width = Math.round(this.width * this.dpr); c.height = Math.round(this.height * this.dpr); }
-            this.scale = Math.min((this.width - 32) / (this.worldW + this.worldH), (this.height - 54) / ((this.worldW + this.worldH) * .5 + 4));
-            this.ox = (this.width - (this.worldW - this.worldH) * this.scale) / 2;
-            this.oy = Math.max(28, (this.height - (this.worldW + this.worldH) * .5 * this.scale) / 2);
+            const view=root.ExcabaseFleetScene?.bounds(this)||{x:0,y:0,w:this.worldW,h:this.worldH};
+            this.scale = Math.min((this.width - 32) / (view.w + view.h), (this.height - 54) / ((view.w + view.h) * .5 + 4));
+            this.ox = (this.width - (view.w - view.h) * this.scale) / 2-(view.x-view.y)*this.scale;
+            this.oy = Math.max(28, (this.height - (view.w + view.h) * .5 * this.scale) / 2)-(view.x+view.y)*this.scale*.5;
             const main = this.ctx; this.ctx = this.background.getContext('2d');
             this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); this.environment(); this.ctx = main;
         }
@@ -96,11 +98,12 @@
             // Boundary stakes give a scale cue without texture assets or animation.
             for(let x=2;x<this.worldW-2;x+=Math.max(4,this.worldW/10))this.box(x,1,.12,.12,.6,['#fff4cf','#b09860','#ded1a5']);
             if(this.hasHauling){
-                this.label(this.width<450?'GALIAN':'GALIAN / PEMUATAN',4,-1.2,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
+                this.label(this.model.loadingSource==='wheelloader'?'JALUR ANGKUT':this.width<450?'GALIAN':'GALIAN / PEMUATAN',4,-1.2,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
                 this.label('DISPOSAL',this.disposalX,this.disposalY-4,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
             }
             if(this.model.bulldozerCount)this.label('AREA DORONG · PEKERJAAN TERPISAH',this.dozerCols*6,this.dozerY-2,0,'#624a31',Math.max(8,Math.min(11,this.width/65)));
             if(this.model.truckCount)this.label(this.hasHauling?'ANTREAN ARMADA':'TRUK SIAGA · TANPA PEMUAT',Math.min(this.queueCols,8),this.parking(this.model.truckCount-1).y+2,0,'#624a31',9);
+            root.ExcabaseFleetScene?.environment(this);
         }
         dozerPosition(unit,time) {
             const lane=this.dozerLane(unit.id),f=clamp((time-unit.start)/(unit.end-unit.start)||0);
@@ -127,12 +130,12 @@
             if(this.scale>=5)this.label('B'+(unit.id+1),p.x,p.y,2.25,'#102a43',Math.max(7,Math.min(10,this.scale*.75)));
         }
         route(t) {
-            const start=this.loading(t.excavatorId ?? 0), end={x:this.disposalX,y:this.disposalY};
+            const start=this.loading(t.loaderId ?? t.excavatorId ?? 0), end={x:this.disposalX,y:this.disposalY};
             return t.state==='returning' ? [end,{x:this.disposalX-7,y:this.disposalY+6},{x:this.hub.x+1,y:this.hub.y+5},this.parking(t.id)]
                 : [start,this.hub,{x:this.disposalX-6,y:this.hub.y},end];
         }
         position(t,time) {
-            if(t.state==='loading')return {...this.loading(t.excavatorId),angle:0};
+            if(t.state==='loading')return {...this.loading(t.loaderId ?? t.excavatorId),angle:0};
             if(t.state==='unloading')return {x:this.disposalX,y:this.disposalY,angle:Math.PI/2};
             if(!['hauling','returning'].includes(t.state))return {...this.parking(t.id),angle:0};
             const points=this.route(t), lengths=points.slice(1).map((p,i)=>Math.hypot(p.x-points[i].x,p.y-points[i].y));
@@ -196,8 +199,9 @@
             // Inactive Bulldozer models remain parked, without fictional work.
             const units=bulldozers.length?bulldozers:Array.from({length:this.model.bulldozerCount||0},(_,id)=>({id,state:'standby',load:0,start:0,end:0}));
             units.forEach(unit=>{const p=this.dozerPosition(unit,engine?.dozer?.time||0);actors.push({depth:p.x+p.y,draw:()=>this.bulldozer(unit,engine?.dozer?.time||0,p)});});
+            root.ExcabaseFleetScene?.actors(this,engine,actors);
             actors.sort((a,b)=>a.depth-b.depth).forEach(a=>a.draw());
-            if(this.scale<5){ctx.fillStyle='rgba(255,255,255,.92)';ctx.fillRect(10,this.height-29,this.width-20,22);ctx.font='11px Arial';ctx.textAlign='center';ctx.fillStyle='#102a43';ctx.fillText('E '+this.model.excavatorCount+' · T '+this.model.truckCount+' · B '+(this.model.bulldozerCount||0)+' · seluruh unit ditampilkan',this.width/2,this.height-14);}
+            if(this.scale<5){ctx.fillStyle='rgba(255,255,255,.92)';ctx.fillRect(10,this.height-29,this.width-20,22);ctx.font='11px Arial';ctx.textAlign='center';ctx.fillStyle='#102a43';ctx.fillText('E'+this.model.excavatorCount+' T'+this.model.truckCount+' B'+(this.model.bulldozerCount||0)+' L'+(this.model.loaderCount||0)+' G'+(this.model.graderCount||0)+' R'+(this.model.compactorCount||0)+' · semua unit',this.width/2,this.height-14);}
         }
     }
     root.ExcabaseFleetRenderer=Renderer;

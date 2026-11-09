@@ -142,7 +142,7 @@
                 assert(!d.getElementById('fvPlay').disabled,'mixed snapshot applies '+key+'/'+extras.join(','));
                 const baseline=D.context(sources.cepat,read(),key);
                 assert(view.getConfig().volumeLCM===baseline.volumeLCM&&view.getConfig().truckCount===baseline.truckCount&&view.getConfig().excavatorCount===baseline.excavatorCount,'unsupported productivity excluded '+key+'/'+extras.join(','));
-                if(extras.length)assert(/Belum didukung|Bulldozer belum dapat/.test(d.getElementById('fvEquipmentNotice').textContent),'visible inactive equipment notice '+key+'/'+extras.join(','));
+                if(extras.length)assert(/Belum didukung|belum dapat/.test(d.getElementById('fvEquipmentNotice').textContent),'visible inactive equipment notice '+key+'/'+extras.join(','));
                 const referenceValues=Object.fromEntries(Object.entries(baseline.params).map(([name,p])=>[name,p.value]));referenceValues.unloadMinutes=1;
                 assert(JSON.stringify(view.getConfig())===JSON.stringify(D.config(baseline,referenceValues,'total')),'mixed operational config identical to pair '+key+'/'+extras.join(','));
                 const canvas=d.getElementById('fvCanvas'),pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
@@ -236,6 +236,8 @@
         sessionStorage.removeItem(D.SESSION_KEY);save(fixture());d=await open('pages/fleet-visualization.html?fromProject=1&projectId=fv-audit&scenario=dasar');
         assert(!d.getElementById('fvError').hidden,'missing handoff has recovery message');
         await window.runBulldozerAudit({assert,near,wait,open,fixture,save,read});
+        await window.runOperationsAudit({assert,near,wait,open,fixture,save,read});
+        await window.runFleetLayoutAudit({assert,near,wait,open,fixture,save,read});
         assert(errors.length===0,'no browser errors: '+errors.join('; '));
         window.ExcabaseFleetTestPreview={project:JSON.parse(projectBefore),source:sources.cepat};
         output.textContent=JSON.stringify({passed:true,assertions:checks.length,widths:[360,390,768,1366,1920],lastChecks:checks.slice(-12)});

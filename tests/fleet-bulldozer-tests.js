@@ -97,8 +97,8 @@ window.runBulldozerAudit=async function(helpers){
             assert(localStorage.getItem('excabase_active_project')===unchanged&&localStorage.getItem('excabase_projects')===unchangedList,'mode never mutates project or formulas '+types+'/'+key);
             if(key==='cepat'){
                 for(const width of [390,1366]){
-                    const iframe=document.querySelector('iframe');iframe.style.width=width+'px';await wait(120);
-                    assert(d.documentElement.scrollWidth<=w.innerWidth&&d.getElementById('fvCanvas').width>0,'mode responsive '+types+'/'+width);
+                    const iframe=document.querySelector('iframe');iframe.style.width=width+'px';await wait(350);
+                    assert(d.documentElement.scrollWidth<=w.innerWidth&&d.getElementById('fvCanvas').width>0,'mode responsive '+types+'/'+width+' viewport='+w.innerWidth+' scroll='+d.documentElement.scrollWidth+' overflow='+Array.from(d.querySelectorAll('main *')).filter(n=>n.getBoundingClientRect().right>w.innerWidth+1).slice(0,8).map(n=>n.tagName+'#'+n.id+'.'+n.className+':'+Math.round(n.getBoundingClientRect().width)).join(','));
                 }
                 if(hasDozer){
                     window.ExcabaseBulldozerTestPreviews ||= {};

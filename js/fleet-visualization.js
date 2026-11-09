@@ -24,7 +24,12 @@
         ['dozerPushShare','Bagian mendorong material','% siklus','dozer',.001,99],
         ['dozerReturnShare','Bagian mundur','% siklus','dozer',.001,99]
     ];
-    const activeFields = () => fields.filter(([, , ,group]) => group==='common' || (group==='dozer'?!!context?.bulldozer:context?.haulingEnabled));
+    fields.push(...(window.ExcabaseFleetControls?.fields||[]));
+    const activeFields = () => fields.filter(([key, , ,group]) => {
+        const extra=window.ExcabaseFleetControls?.active(group,context,key);if(extra!==undefined)return extra;
+        if(context?.loadingSource==='wheelloader'&&['bucketCapacity','fillFactor','excavatorCycleSeconds','excavatorEfficiency'].includes(key))return false;
+        return group==='common'||(group==='dozer'?!!context?.bulldozer:context?.haulingEnabled);
+    });
     let source, project, context, engine = null, playing = false, dirty = true, invalid = false;
     let frame = null, last = 0, lastDraw = 0, lastCheck = 0, speed = 1, lastLog = '';
     let sourceOrigin = 'belum tersedia', stage = 'membaca snapshot', lastFailure = null;
@@ -32,10 +37,10 @@
     function getDiagnostics() {
         const query = new URLSearchParams(location.search);
         return { sourceOrigin, stage, error: lastFailure, handoffMatches: query.has('handoff') ? query.get('handoff') === source?.handoffId : null,
-            activities:context?{haulingEnabled:context.haulingEnabled,bulldozerEnabled:!!context.bulldozer,limitations:[...context.limitations]}:null,
+            activities:context?{haulingEnabled:context.haulingEnabled,loadingSource:context.loadingSource,bulldozerEnabled:!!context.bulldozer,loaderEnabled:context.loaderActive,graderEnabled:!!context.grader,compactorEnabled:!!context.compactor,limitations:[...context.limitations]}:null,
             ...data.diagnostics(source, getProject(), $('fvScenario').value || query.get('scenario')) };
     }
-    function showDiagnostics() { $('fvDiagnosticsOutput').textContent = JSON.stringify(getDiagnostics(),null,2); }
+    function showDiagnostics() { const output=$('fvDiagnosticsOutput');if(output)output.textContent=JSON.stringify(getDiagnostics(),null,2); }
     function getProject() { return getExcabaseActiveProject(); }
     function pause(message) {
         playing = false;
@@ -59,6 +64,9 @@
         $('fvRunBadge').textContent = 'Visualisasi belum siap';
         for (const id of ['fvCounts','fvTotal','fvProgress','fvDelivered','fvExtracted','fvInTransit','fvRemaining','fvTime','fvDays','fvLoading','fvHauling','fvUnloading','fvReturning','fvQueued','fvStandby','fvDozerCount','fvDozerProgress','fvDozerTarget','fvDozerPushed','fvDozerInProgress','fvDozerRemaining','fvDozerRate','fvDozerTime','fvDozerStates']) $(id).textContent = '—';
         $('fvProgressBar').removeAttribute('value');
+        $('fvHaulProgress').hidden=true;$('fvDozerSummary').hidden=true;$('fvDozerPanel').hidden=true;
+        window.ExcabaseFleetControls?.fail();
+        window.ExcabaseFleetLayout?.fail();
         showDiagnostics();
     }
     function verify() {
@@ -78,10 +86,10 @@
             target.hidden = !context?.haulingEnabled || mode !== $('fvTimingMode').value;
             target.querySelectorAll('input').forEach(input => { input.disabled = target.hidden; });
         }
-        $('fvDeriveLoading').hidden = !context?.haulingEnabled || $('fvTimingMode').value !== 'total';
+        $('fvDeriveLoading').hidden = !context?.haulingEnabled || context.loadingSource==='wheelloader' || $('fvTimingMode').value !== 'total';
     }
     function parameters() {
-        const containers = { equipment: $('fvEquipmentFields'), total: $('fvTotalFields'), segments: $('fvSegmentFields'), unload: $('fvUnloadFields'), common:$('fvCommonFields'), dozer:$('fvDozerFields') };
+        const containers = { equipment: $('fvEquipmentFields'), total: $('fvTotalFields'), segments: $('fvSegmentFields'), unload: $('fvUnloadFields'), common:$('fvCommonFields'), dozer:$('fvDozerFields'), ...window.ExcabaseFleetControls?.containers() };
         Object.values(containers).forEach(node => node.replaceChildren());
         Object.keys(sourceLabels).forEach(key=>delete sourceLabels[key]);
         for (const [key, label, unit, group, min, max] of activeFields()) {
@@ -93,6 +101,7 @@
             title.htmlFor = input.id; title.textContent = label + ' (' + unit + ')';
             origin.textContent = context.params[key].origin; sourceLabels[key] = origin;
             wrapper.append(title,input,origin); containers[group].append(wrapper);
+            window.ExcabaseFleetLayout?.decorateField(wrapper,input,origin);
         }
         timingMode();
     }
@@ -103,7 +112,7 @@
         lastLog = ''; $('fvLog').replaceChildren();
         const li = document.createElement('li'); li.textContent = 'Terapkan parameter untuk memulai.'; $('fvLog').append(li);
     }
-    function choose(key) {
+    function choose(key,loadingSource) {
         try {
             lastFailure = null; stage = 'validasi snapshot';
             $('fvScenarioName').textContent = data.names[key] || '—';
@@ -114,14 +123,16 @@
                 ? 'Belum didukung: ' + partition.unsupported.map(item => item.name + ': ' + item.units + ' unit').join(', ') + '. Produktivitasnya tidak dimasukkan ke model operasional.'
                 : '';
             stage = 'membaca alat dan parameter skenario';
-            context = data.context(source, project, key, legacy());
-            const activities=[context.haulingEnabled?'Excavator–Dump Truck':null,context.bulldozer?'Bulldozer (dorong mandiri)':null].filter(Boolean);
+            context = data.context(source, project, key, legacy(),{loadingSource});
+            window.ExcabaseFleetControls?.setup(context);
+            const activities=[context.haulingEnabled?(context.loadingSource==='wheelloader'?'Wheel Loader–Dump Truck':'Excavator–Dump Truck'):null,context.bulldozer?'Bulldozer (dorong mandiri)':null,...(window.ExcabaseFleetControls?.names(context)||[])].filter(Boolean);
             $('fvEquipmentNotice').textContent=['Animasi: '+activities.join(' dan ')+'.',$('fvEquipmentNotice').textContent,...context.limitations].filter(Boolean).join(' ');
             $('fvHaulingEquipment').hidden=!context.haulingEnabled; $('fvHaulingTiming').hidden=!context.haulingEnabled;
             $('fvHaulProgress').hidden=!context.haulingEnabled;
             document.querySelectorAll('.fv-haul-only').forEach(node=>node.hidden=!context.haulingEnabled);
             $('fvDozerPanel').hidden=!context.bulldozer; $('fvDozerSummary').hidden=!context.bulldozer; $('fvDozerParameters').hidden=!context.bulldozer;
-            $('fvSceneTitle').textContent=context.haulingEnabled?(context.bulldozer?'Galian → Disposal · Dorong tanah':'Galian → Disposal'):'Dorong tanah · Bulldozer';
+            window.ExcabaseFleetLayout?.setup(context);
+            $('fvSceneTitle').textContent=activities.join(' · ');
             $('fvCanvas').setAttribute('aria-label',activities.join(' dan ')+'. Posisi isometrik ilustratif; progres tiap aktivitas ditampilkan terpisah.');
             if(context.bulldozer){
                 const b=context.bulldozer,unit=' m³ '+b.basis.toUpperCase();
@@ -136,7 +147,9 @@
             $('fvDozerCount').textContent=context.bulldozerCount+' unit';
             $('fvTotal').textContent = context.haulingEnabled?format(context.volumeLCM) + ' m³ LCM':'—';
             $('fvOtherEquipment').textContent=$('fvEquipmentNotice').textContent;
-            parameters(); clearMetrics(); stage = 'inisialisasi renderer'; renderer.setContext(context); renderer.draw(null);
+            parameters(); clearMetrics(); stage = 'inisialisasi renderer'; renderer.focus='all';renderer.setContext(context); renderer.draw(null);
+            window.ExcabaseFleetControls?.update(null,context);
+            window.ExcabaseFleetLayout?.update(null,context);
             $('fvTimingSummary').textContent = '';
             $('fvRunBadge').textContent = 'Siap dikonfigurasi';
             $('fvStatus').textContent = 'Skenario ' + context.name + ': ' + activities.join(' dan ') + '. Periksa sumber parameter dan isi data/asumsi yang belum tersedia, lalu Terapkan.';
@@ -157,6 +170,8 @@
             set('fvDozerPushed',format(b.pushed)+unit);set('fvDozerInProgress',format(b.inProgress)+unit);set('fvDozerRemaining',format(b.remaining)+unit);set('fvDozerTime',clock(b.time));
             set('fvDozerStates','Maju '+b.counts.approaching+' · Dorong '+b.counts.pushing+' · Mundur '+b.counts.returning+' · Jeda '+b.counts.waiting+' · Siaga '+b.counts.standby);
         }
+        window.ExcabaseFleetControls?.update(state,context);
+        window.ExcabaseFleetLayout?.update(state,context);
         if (engine?.log.length) {
             const latest = engine.log.at(-1), signature = latest.time + latest.message;
             if (signature !== lastLog) {
@@ -174,7 +189,7 @@
         try {
         const dt = Math.min(.25, Math.max(0, (now - last) / 1000)); last = now;
         const state = engine.advance(dt * speed);
-        const units = context.excavatorCount + context.truckCount + context.bulldozerCount;
+        const units = context.excavatorCount + context.truckCount + context.bulldozerCount + (context.loaderCount||0) + (context.graderCount||0) + (context.compactorCount||0);
         const fps = units > 500 ? 8 : units > 120 ? 15 : 30;
         if (now - lastDraw >= 1000 / fps || state.finished) { lastDraw = now; renderer.draw(engine); update(state); }
         if (state.finished) { pause('Selesai: seluruh aktivitas operasional mencapai target masing-masing dan alat kembali siaga. Reset untuk mengulang.'); return; }
@@ -187,6 +202,7 @@
             verify();
             const values = Object.fromEntries(activeFields().map(([key]) => [key,$('fv-' + key).value]));
             const cfg = data.config(context,values,$('fvTimingMode').value);
+            window.ExcabaseFleetLayout?.refreshInputs();
             stage = 'inisialisasi engine';
             pause(); engine = new window.ExcabaseFleetEngine.FleetEngine(cfg); dirty = false;
             $('fvPlay').disabled = false; $('fvReset').disabled = false; $('fvError').hidden = true;
@@ -194,13 +210,14 @@
             lastFailure = null; stage = 'siap diputar'; showDiagnostics();
             $('fvRunBadge').textContent = 'Siap diputar'; $('fvStatus').textContent = 'Konfigurasi diterapkan. Klik Play untuk memulai waktu kerja simulasi.';
             const summaries=[];
-            if(context.haulingEnabled)summaries.push('Perjalanan bermuatan ' + format(cfg.loadedTravelSeconds / 60) + ' menit; bongkar ' + format(cfg.unloadSeconds / 60) + ' menit; kembali ' + format(cfg.returnTravelSeconds / 60) + ' menit (sebelum efisiensi truk). Muat per bucket ' + format(cfg.excavatorCycleSeconds / cfg.excavatorEfficiency) + ' detik efektif. Antrean berasal dari model.');
+            if(context.haulingEnabled)summaries.push('Perjalanan bermuatan ' + format(cfg.loadedTravelSeconds / 60) + ' menit; bongkar ' + format(cfg.unloadSeconds / 60) + ' menit; kembali ' + format(cfg.returnTravelSeconds / 60) + ' menit (sebelum efisiensi truk). '+(context.loadingSource==='wheelloader'?'Wheel Loader: siklus efektif '+format(cfg.wheelLoader.cycleSeconds)+' detik, Q dari skenario.':'Muat per bucket '+format(cfg.excavatorCycleSeconds/cfg.excavatorEfficiency)+' detik efektif.')+' Antrean berasal dari model.');
             if(cfg.bulldozer){const b=cfg.bulldozer;summaries.push('Bulldozer: siklus efektif '+format(b.cycleSeconds)+' detik; volume acuan '+format(b.hourlyPerUnit*b.cycleSeconds/3600)+' m³ '+b.basis.toUpperCase()+'/unit/siklus. Jeda '+format(100-b.approachShare-b.pushShare-b.returnShare)+'%. Fase animasi bersifat asumsi; produktivitas tetap Q skenario.');}
             $('fvTimingSummary').textContent=summaries.join(' ')+' Jam kerja '+format(cfg.workingHours)+' jam/hari. Volume dorong dan disposal tidak dijumlahkan.';
         } catch (error) { lastFailure = error.message; dirty = true; pause(error.message); $('fvError').hidden = false; $('fvError').textContent = error.message; showDiagnostics(); }
     });
     function markDirty(event) {
         if (invalid) return;
+        window.ExcabaseFleetLayout?.refreshInputs();
         dirty = true; pause('Parameter berubah. Klik Terapkan & reset simulasi sebelum melanjutkan.');
         if (event?.target.name && sourceLabels[event.target.name]) sourceLabels[event.target.name].textContent = 'Input tambahan/penyesuaian sesi visualisasi — tidak mengubah data proyek';
     }
@@ -230,6 +247,8 @@
     });
     $('fvSpeed').addEventListener('change', () => { const value=Number($('fvSpeed').value); speed=[1,2,5,10].includes(value)?value:1; });
     $('fvScenario').addEventListener('change', () => choose($('fvScenario').value));
+    $('fvLoadingSource').addEventListener('change',()=>choose($('fvScenario').value,$('fvLoadingSource').value));
+    $('fvSceneZone').addEventListener('change',()=>{try{renderer.focus=$('fvSceneZone').value;renderer.resize();renderer.draw(engine);}catch(error){fail(error);}});
     document.addEventListener('visibilitychange', () => { if (document.hidden&&playing) pause('Dijeda karena tab tidak aktif. Klik Play saat kembali.'); });
     window.addEventListener('pagehide', () => pause());
     window.addEventListener('pageshow', () => { if(source)try{verify();}catch(error){fail(error);} });
@@ -241,13 +260,6 @@
     const observer=new ResizeObserver(() => { renderer.resize(); renderer.draw(engine); }); observer.observe($('fvCanvas'));
     // Read-only diagnostics for accessible integration tests and troubleshooting.
     window.ExcabaseFleetView=Object.freeze({ getState:()=>engine?{...engine.snapshot(),playing,dirty,invalid}:null, getConfig:()=>engine?{...engine.config}:null, getDiagnostics });
-    $('fvDiagnostics').addEventListener('toggle', () => { if ($('fvDiagnostics').open) showDiagnostics(); });
-    $('fvDownloadDiagnostics').addEventListener('click', () => {
-        showDiagnostics();
-        const url = URL.createObjectURL(new Blob([JSON.stringify(getDiagnostics(),null,2)],{type:'application/json'}));
-        const link = document.createElement('a'); link.href=url; link.download='excabase-fleet-diagnostics.json'; link.click();
-        setTimeout(()=>URL.revokeObjectURL(url),1000);
-    });
     try {
         project=getProject();
         if(!project)throw new Error('Proyek aktif tidak ditemukan. Buka fitur melalui tahap Simulasi Armada.');

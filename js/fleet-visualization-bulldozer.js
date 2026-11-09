@@ -66,48 +66,5 @@
                 progress:Math.min(100,this.pushed/this.config.volume*100),finished:this.finished,counts};
         }
     }
-    function validateFleet(c) {
-        if(c.haulingEnabled!==false)api.validate(c);
-        else for(const key of ['excavatorCount','truckCount'])if(!Number.isInteger(c[key])||c[key]<0)throw new Error('Jumlah alat non-operasional tidak valid.');
-        if(!Number.isFinite(c.workingHours)||c.workingHours<=0||c.workingHours>24)throw new Error('Jam kerja harus positif dan maksimal 24.');
-        if(c.bulldozer)validateBulldozer(c.bulldozer);
-        if(c.haulingEnabled===false&&!c.bulldozer)throw new Error('Belum ada aktivitas operasional yang dapat dijalankan.');
-        if(c.excavatorCount+c.truckCount+(c.bulldozer?.count||0)>2000)throw new Error('Visualisasi mendukung maksimal 2.000 unit gabungan tanpa mengurangi jumlah skenario.');
-        return {...c,...(c.bulldozer?{bulldozer:{...c.bulldozer}}:{})};
-    }
-    // Orchestrates independent activities on one clock; their volumes are never summed.
-    class FleetEngine {
-        constructor(config) {
-            const c=validateFleet(config);
-            if(c.bulldozer)Object.freeze(c.bulldozer);
-            this.config=Object.freeze(c);
-            this.hauling=c.haulingEnabled===false?null:new api.Engine(c);
-            this.dozer=c.bulldozer?new BulldozerEngine(c.bulldozer):null;
-            this.reset();
-        }
-        reset() {
-            this.hauling?.reset();this.dozer?.reset();this.time=0;
-            this.parkedTrucks=Array.from({length:this.config.truckCount},(_,id)=>({id,state:'standby',load:0}));
-            this.idleExcavators=Array.from({length:this.config.excavatorCount},(_,id)=>({id,truckId:null}));
-        }
-        get trucks(){return this.hauling?.trucks||this.parkedTrucks;}
-        get excavators(){return this.hauling?.excavators||this.idleExcavators;}
-        get bulldozers(){return this.dozer?.units||[];}
-        get delivered(){return this.hauling?.delivered||0;}
-        get extracted(){return this.hauling?.extracted||0;}
-        get finished(){return (!this.hauling||this.hauling.finished)&&(!this.dozer||this.dozer.finished);}
-        get log(){return [...(this.hauling?.log||[]),...(this.dozer?.log||[])].sort((a,b)=>a.time-b.time).slice(-30);}
-        advance(seconds) {
-            if(!Number.isFinite(seconds)||seconds<0||!Number.isFinite(this.time+seconds))throw new Error('Langkah waktu armada tidak valid.');
-            if(this.finished)return this.snapshot();
-            this.hauling?.advance(seconds);this.dozer?.advance(seconds);
-            this.time=this.finished?Math.max(this.hauling?.time||0,this.dozer?.time||0):this.time+seconds;
-            return this.snapshot();
-        }
-        snapshot() {
-            const hauling=this.hauling?.snapshot()||{total:0,extracted:0,delivered:0,inTransit:0,remaining:0,progress:0,counts:{loading:0,hauling:0,unloading:0,returning:0,queued:0,standby:this.config.truckCount}};
-            return {...hauling,time:this.time,finished:this.finished,haulingEnabled:!!this.hauling,haulingFinished:this.hauling?.finished||false,bulldozer:this.dozer?.snapshot()||null};
-        }
-    }
-    Object.assign(api,{BulldozerEngine,validateBulldozer,FleetEngine,validateFleet});
+    Object.assign(api,{BulldozerEngine,validateBulldozer});
 })(typeof window!=='undefined'?window:globalThis);

@@ -1,6 +1,7 @@
 param(
     [string]$ChromePath = 'C:\Program Files\Google\Chrome\Application\chrome.exe',
-    [switch]$CapturePreviews
+    [switch]$CapturePreviews,
+    [switch]$CaptureLayoutPreviews
 )
 # Windows browser runner, no Node/npm or external packages required.
 # A fresh disposable profile isolates all test fixtures from the user's browser.
@@ -59,7 +60,7 @@ try {
     $testUri = ([uri](Join-Path $fleetRoot 'tests\fleet-visualization.html')).AbsoluteUri + '?run=1'
     Send-FleetCdp 'Page.navigate' @{url=$testUri} | Out-Null
     $result = ''
-    for ($i=0; $i -lt 240; $i++) {
+    for ($i=0; $i -lt 480; $i++) {
         Start-Sleep -Milliseconds 300
         $result = Invoke-FleetJs 'document.getElementById("fvTestOutput")?.textContent || ""'
         if ($result.StartsWith('{')) { break }
@@ -72,8 +73,10 @@ try {
     [System.IO.File]::WriteAllText((Join-Path $fleetAuditDir 'result.json'),$result)
     Write-Output $result
     if (-not $parsed.passed) { throw 'Fleet Simulation audit failed; see result.json.' }
+    if ($CaptureLayoutPreviews) { $layoutPreviews = Invoke-FleetJs 'window.ExcabaseLayoutTestPreviews' }
     if ($CapturePreviews) {
         $dozerPreviews = Invoke-FleetJs 'window.ExcabaseBulldozerTestPreviews'
+        $operationPreviews = Invoke-FleetJs 'window.ExcabaseOperationsTestPreviews'
         Invoke-FleetJs '(()=>{const p=window.ExcabaseFleetTestPreview;localStorage.setItem("excabase_active_project",JSON.stringify(p.project));localStorage.setItem("excabase_projects",JSON.stringify([p.project]));sessionStorage.setItem(ExcabaseFleetData.SESSION_KEY,JSON.stringify(p.source));})()' | Out-Null
         $viewUri = ([uri](Join-Path $fleetRoot 'pages\fleet-visualization.html')).AbsoluteUri + '?fromProject=1&projectId=fv-audit&scenario=cepat'
         Send-FleetCdp 'Page.navigate' @{url=$viewUri} | Out-Null
@@ -99,6 +102,57 @@ try {
                 Invoke-FleetJs 'document.getElementById("fvSceneTitle").scrollIntoView({block:"start"})' | Out-Null
                 $screenshot = Send-FleetCdp 'Page.captureScreenshot' @{format='png'}
                 [System.IO.File]::WriteAllBytes((Join-Path $fleetAuditDir ($mode + '-' + $width + '.png')),[Convert]::FromBase64String($screenshot.data))
+            }
+        }
+        foreach ($mode in @('loader-roller','six')) {
+            $operationSeed = $operationPreviews.$mode | ConvertTo-Json -Depth 30 -Compress
+            Invoke-FleetJs ('(()=>{const p=' + $operationSeed + ';localStorage.setItem("excabase_active_project",JSON.stringify(p.project));localStorage.setItem("excabase_projects",JSON.stringify([p.project]));sessionStorage.setItem(ExcabaseFleetData.SESSION_KEY,JSON.stringify(p.source));})()') | Out-Null
+            Send-FleetCdp 'Page.navigate' @{url=$viewUri} | Out-Null
+            Start-Sleep -Milliseconds 500
+            Invoke-FleetJs '(()=>{const source=document.getElementById("fvLoadingSource");if(Array.from(source.options).some(o=>o.value==="wheelloader")){source.value="wheelloader";source.dispatchEvent(new Event("change"));}for(const [key,value]of [["loaderCycleSeconds",".4"],["dozerCycleSeconds",".4"],["graderLength",".1"],["compactorLength",".1"],["unloadMinutes","1"]]){const input=document.getElementById("fv-"+key);if(input)input.value=value;}document.getElementById("fvForm").requestSubmit();document.getElementById("fvParameters").open=false;document.getElementById("fvSpeed").value="10";document.getElementById("fvSpeed").dispatchEvent(new Event("change"));document.getElementById("fvPlay").click()})()' | Out-Null
+            Start-Sleep -Milliseconds 500
+            Invoke-FleetJs 'document.getElementById("fvPause").click()' | Out-Null
+            foreach ($width in @(390,1366)) {
+                Send-FleetCdp 'Emulation.setDeviceMetricsOverride' @{width=$width;height=1000;deviceScaleFactor=1;mobile=$false} | Out-Null
+                Start-Sleep -Milliseconds 350
+                Invoke-FleetJs 'document.getElementById("fvSceneTitle").scrollIntoView({block:"start"})' | Out-Null
+                $screenshot = Send-FleetCdp 'Page.captureScreenshot' @{format='png'}
+                [System.IO.File]::WriteAllBytes((Join-Path $fleetAuditDir ($mode + '-all-' + $width + '.png')),[Convert]::FromBase64String($screenshot.data))
+            }
+            if ($mode -eq 'six') {
+                foreach ($zone in @('loader','grader','compactor')) {
+                    Invoke-FleetJs ('document.getElementById("fvSceneZone").value="' + $zone + '";document.getElementById("fvSceneZone").dispatchEvent(new Event("change"))') | Out-Null
+                    $screenshot = Send-FleetCdp 'Page.captureScreenshot' @{format='png'}
+                    [System.IO.File]::WriteAllBytes((Join-Path $fleetAuditDir ($mode + '-' + $zone + '-1366.png')),[Convert]::FromBase64String($screenshot.data))
+                }
+                Send-FleetCdp 'Emulation.setDeviceMetricsOverride' @{width=390;height=1000;deviceScaleFactor=1;mobile=$false} | Out-Null
+                Start-Sleep -Milliseconds 350
+                foreach ($zone in @('loader','compactor')) {
+                    Invoke-FleetJs ('document.getElementById("fvSceneZone").value="' + $zone + '";document.getElementById("fvSceneZone").dispatchEvent(new Event("change"));document.getElementById("fvSceneTitle").scrollIntoView({block:"start"})') | Out-Null
+                    $screenshot = Send-FleetCdp 'Page.captureScreenshot' @{format='png'}
+                    [System.IO.File]::WriteAllBytes((Join-Path $fleetAuditDir ($mode + '-' + $zone + '-390.png')),[Convert]::FromBase64String($screenshot.data))
+                }
+            }
+        }
+    }
+    if ($CaptureLayoutPreviews) {
+        $layoutUri = ([uri](Join-Path $fleetRoot 'pages\fleet-visualization.html')).AbsoluteUri + '?fromProject=1&projectId=fv-audit&scenario=cepat'
+        foreach ($mode in @('one','three','six')) {
+            $layoutSeed = $layoutPreviews.$mode | ConvertTo-Json -Depth 30 -Compress
+            Invoke-FleetJs ('(()=>{const p=' + $layoutSeed + ';localStorage.setItem("excabase_active_project",JSON.stringify(p.project));localStorage.setItem("excabase_projects",JSON.stringify([p.project]));sessionStorage.setItem(ExcabaseFleetData.SESSION_KEY,JSON.stringify(p.source));})()') | Out-Null
+            Send-FleetCdp 'Page.navigate' @{url=$layoutUri} | Out-Null
+            Start-Sleep -Milliseconds 500
+            Invoke-FleetJs '(()=>{const mode=document.getElementById("fvTimingMode");if(!mode.disabled){mode.value="segments";mode.dispatchEvent(new Event("change"));}for(const [key,value]of [["excavatorCycleSeconds",".2"],["bucketCapacity","4"],["loaderCycleSeconds",".4"],["dozerCycleSeconds",".4"],["graderLength",".1"],["compactorLength",".1"],["loadedTravelMinutes",".02"],["returnTravelMinutes",".02"],["unloadMinutes",".02"]]){const input=document.getElementById("fv-"+key);if(input)input.value=value;}document.getElementById("fvForm").requestSubmit();document.getElementById("fvParameters").open=false;document.getElementById("fvSpeed").value="10";document.getElementById("fvSpeed").dispatchEvent(new Event("change"));document.getElementById("fvPlay").click()})()' | Out-Null
+            Start-Sleep -Milliseconds 450
+            Invoke-FleetJs 'document.getElementById("fvPause").click()' | Out-Null
+            foreach ($width in @(1920,1366,768,390,360)) {
+                Send-FleetCdp 'Emulation.setDeviceMetricsOverride' @{width=$width;height=1100;deviceScaleFactor=1;mobile=$false} | Out-Null
+                Start-Sleep -Milliseconds 350
+                foreach ($section in @('fvSceneTitle','fvProgressGrid')) {
+                    Invoke-FleetJs ('document.getElementById("' + $section + '").scrollIntoView({block:"start"})') | Out-Null
+                    $screenshot = Send-FleetCdp 'Page.captureScreenshot' @{format='png'}
+                    [System.IO.File]::WriteAllBytes((Join-Path $fleetAuditDir ('layout-' + $mode + '-' + $section + '-' + $width + '.png')),[Convert]::FromBase64String($screenshot.data))
+                }
             }
         }
     }

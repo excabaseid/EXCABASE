@@ -8,9 +8,9 @@
         excavator: Object.freeze({ name: 'Excavator', operational: true }),
         dumptruck: Object.freeze({ name: 'Dump Truck', operational: true }),
         bulldozer: Object.freeze({ name: 'Bulldozer', operational: true }),
-        wheelloader: Object.freeze({ name: 'Wheel Loader', operational: false }),
-        motorgrader: Object.freeze({ name: 'Motor Grader', operational: false }),
-        compactor: Object.freeze({ name: 'Compactor', operational: false })
+        wheelloader: Object.freeze({ name: 'Wheel Loader', operational: true }),
+        motorgrader: Object.freeze({ name: 'Motor Grader', operational: true }),
+        compactor: Object.freeze({ name: 'Compactor', operational: true })
     });
     const normalizeType = type => String(type ?? '').trim().toLowerCase().replace(/[\s_-]+/g, '');
     function partitionEquipment(equipment) {
@@ -33,7 +33,7 @@
                 fields: item && typeof item === 'object' ? Object.keys(item) : [],
                 type: scalar(item?.type), normalizedType: normalizeType(item?.type),
                 operational: equipmentTypes[normalizeType(item?.type)]?.operational === true,
-                units: scalar(item?.units), workVolume: scalar(item?.workVolume), workVolumeBasis: scalar(item?.workVolumeBasis)
+                units: scalar(item?.units), workVolume: scalar(item?.workVolume), workVolumeBasis: scalar(item?.workVolumeBasis), productivityPerUnit:scalar(item?.productivityPerUnit??item?.hourlyProductivity)
             })) : [] });
         return { diagnosticVersion: 1, snapshotVersion: scalar(source?.version), selectedScenario: scalar(source?.selected), requestedScenario: scalar(key),
             projectMatches: !!source && !!project && source.projectId === String(project.id),
@@ -84,7 +84,7 @@
         const cycleSeconds=rawCycle>0&&efficiency>0&&efficiency<=1?rawCycle/efficiency:null;
         return {model:{count,volume,basis,hourlyPerUnit,cycleSeconds},reason:null};
     }
-    function context(source, project, key, legacyInputs = {}) {
+    function context(source, project, key, legacyInputs = {}, options = {}) {
         verify(source, project);
         const result = source.scenarios?.[key];
         if (!names[key] || !result) throw new Error('Hasil skenario ini belum siap. Hitung Semua Skenario terlebih dahulu.');
@@ -95,15 +95,18 @@
             return matches[0];
         };
         const ex = find('excavator'), truck = find('dumptruck'), dozer = find('bulldozer');
-        const bulldozer = bulldozerContext(dozer,project,legacyInputs), haulingEnabled = !!ex && !!truck;
-        if (!haulingEnabled && !bulldozer.model) {
+        const bulldozer = bulldozerContext(dozer,project,legacyInputs);
+        const additional=root.ExcabaseFleetOperations?.read(result,project,legacyInputs)||{available:false};
+        const preferLoader=root.ExcabaseFleetOperations?.prefersLoader(additional,ex,truck,project,options)||false;
+        const haulingEnabled=!!ex&&!!truck&&!preferLoader;
+        if (!haulingEnabled && !bulldozer.model && !additional.available) {
             const missing = [!ex && 'excavator', !truck && 'dumptruck'].filter(Boolean);
             const expected = partitionEquipment(project.results?.estimate?.equipment || []).supported;
             const lost = missing.filter(type => expected.some(item => item.type === type));
             const received = result.equipment.map(item => String(item?.type ?? '(type tidak ada)')).join(', ') || '(kosong)';
             throw new Error('Skenario ' + names[key] + ' belum memuat kedua jenis alat operasional. Tidak terbaca: ' + missing.map(type => equipmentTypes[type].name).join(', ') +
                 '. Jenis pada snapshot: ' + received + '. ' + (lost.length ? 'Alat tersebut ada di Estimasi tetapi tidak terbaca pada snapshot. ' : '') +
-                'Kembali ke Simulasi Armada, klik Hitung Semua Skenario, lalu buka ulang Visualisasikan Armada. Lihat Diagnostik integrasi jika masalah berulang. ' + (bulldozer.reason||'Alternatif: pekerjaan dorong mandiri membutuhkan Bulldozer dengan data produktivitas yang valid.'));
+                'Kembali ke Simulasi Armada, klik Hitung Semua Skenario, lalu buka ulang Visualisasikan Armada. Lihat Diagnostik integrasi jika masalah berulang. ' + (bulldozer.reason||'Alternatif: pekerjaan mandiri membutuhkan data produktivitas yang valid.')+' '+(additional.reasons||[]).join(' '));
         }
         for (const item of [ex, truck].filter(Boolean)) if (!Number.isInteger(number(item.units)) || number(item.units) < 1) throw new Error('Jumlah ' + item.name + ' pada skenario ' + names[key] + ' tidak valid (properti units harus bilangan bulat positif). Hitung Semua Skenario lalu buka ulang visualisasi.');
         const bulldozerCount=Number.isInteger(number(dozer?.units))&&number(dozer?.units)>0?Number(dozer.units):0;
@@ -149,22 +152,23 @@
             field('dozerPushShare',50,'Asumsi animasi: 50% siklus untuk mendorong; dapat diubah');
             field('dozerReturnShare',30,'Asumsi animasi: 30% siklus untuk mundur; sisanya jeda; dapat diubah');
         }
-        return { key, name: names[key], projectName: project.name || 'Proyek', projectId: String(project.id), volumeLCM: volume,
+        const ctx = { key, name: names[key], projectName: project.name || 'Proyek', projectId: String(project.id), volumeLCM: volume,
             excavatorCount: Number(ex?.units||0), truckCount: Number(truck?.units||0), bulldozerCount, haulingEnabled, bulldozer:bulldozer.model, params,
             limitations:[bulldozer.reason,!haulingEnabled&&truck?'Dump Truck siaga: tidak ada pasangan pemuat Excavator–Dump Truck yang lengkap. Bulldozer hanya mendorong tanah dan tidak memuat truk.':null,!haulingEnabled&&ex?'Excavator siaga: pasangan Dump Truck tidak tersedia.':null].filter(Boolean),
             supportedEquipment: supported, otherEquipment: unsupported,
             estimateDays: result.longestEquipmentDuration, originalBasis: ex?.workVolumeBasis };
+        return root.ExcabaseFleetOperations?root.ExcabaseFleetOperations.finalize(ctx,additional,result,project,options):ctx;
     }
     function config(ctx, values, timingMode) {
         const c = { volumeLCM: ctx.volumeLCM, excavatorCount: ctx.excavatorCount, truckCount: ctx.truckCount };
         if(ctx.bulldozer){
             c.bulldozer={...ctx.bulldozer,cycleSeconds:number(values.dozerCycleSeconds),approachShare:number(values.dozerApproachShare),pushShare:number(values.dozerPushShare),returnShare:number(values.dozerReturnShare)};
         }
-        if(ctx.haulingEnabled===false){
-            c.haulingEnabled=false;c.workingHours=number(values.workingHours);
-            return root.ExcabaseFleetEngine.validateFleet(c);
-        }
-        for (const key of ['bucketCapacity', 'fillFactor', 'excavatorCycleSeconds', 'excavatorEfficiency', 'truckCapacity', 'truckEfficiency', 'workingHours']) c[key] = number(values[key]);
+        c.workingHours=number(values.workingHours);
+        if(ctx.haulingEnabled===false)c.haulingEnabled=false;
+        else {
+        if(ctx.loadingSource!=='wheelloader')for (const key of ['bucketCapacity', 'fillFactor', 'excavatorCycleSeconds', 'excavatorEfficiency'])c[key]=number(values[key]);
+        for(const key of ['truckCapacity','truckEfficiency'])c[key]=number(values[key]);
         const unload = number(values.unloadMinutes);
         if (!(unload > 0)) throw new Error('Isi waktu bongkar/manuver yang positif, tanpa waktu antrean.');
         c.unloadSeconds = unload * 60;
@@ -179,7 +183,9 @@
             c.loadedTravelSeconds = number(values.loadedTravelMinutes) * 60;
             c.returnTravelSeconds = number(values.returnTravelMinutes) * 60;
         } else throw new Error('Pilih definisi waktu perjalanan.');
-        return c.bulldozer?root.ExcabaseFleetEngine.validateFleet(c):root.ExcabaseFleetEngine.validate(c);
+        }
+        root.ExcabaseFleetOperations?.configure(ctx,values,c);
+        return root.ExcabaseFleetEngine.validateFleet(c);
     }
-    root.ExcabaseFleetData = { SESSION_KEY, names, equipmentTypes, normalizeType, partitionEquipment, diagnostics, fingerprint, envelope, verifyHandoff, verify, context, config };
+    root.ExcabaseFleetData = { SESSION_KEY, names, equipmentTypes, normalizeType, partitionEquipment, diagnostics, fingerprint, envelope, verifyHandoff, verify, context, config, toLCM };
 })(typeof window !== 'undefined' ? window : globalThis);
