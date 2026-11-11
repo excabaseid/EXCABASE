@@ -392,8 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
             card = createElement("div", "report-selected");
             card.id = "reportSelectedScenario";
 
-            const section = $("detailFleet")
-                ?.closest(".report-section");
+            const section = document.querySelector(".report-conclusion-section");
 
             if (section) section.before(card);
         }
@@ -453,8 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             section.id = "reportFleetComparison";
 
-            const anchor = $("detailFleet")
-                ?.closest(".report-section");
+            const anchor = document.querySelector(".report-conclusion-section");
 
             if (anchor) anchor.before(section);
         }
@@ -519,12 +517,12 @@ document.addEventListener("DOMContentLoaded", function () {
             ],
             [
                 "Indikator target",
-                r => targetDays > 0
+                r => targetDays > 0 && valid(r.longestEquipmentDuration)
                     ? number(r.longestEquipmentDuration) <=
                       targetDays
                         ? "Memenuhi"
                         : "Belum memenuhi"
-                    : "Belum ditentukan"
+                    : "Data target atau durasi belum lengkap"
             ]
         ];
 
@@ -617,7 +615,7 @@ function getEquipmentModel(type) {
         const estimateCurrent = completed || isExcabaseEstimateCurrent(project);
         const fleetCurrent = completed || isExcabaseFleetCurrent(project);
         const equipment = estimateCurrent && Array.isArray(estimate.equipment)
-            ? estimate.equipment
+            ? estimate.equipment.filter(item => item && typeof item === "object")
             : [];
 
         const fleet = fleetCurrent ? results.fleet || {} : {};
@@ -739,63 +737,6 @@ function getEquipmentModel(type) {
             formatRupiah(totalCost)
         );
 
-        // DETAIL TEKNIS
-        setText(
-            "detailEarthwork",
-            "Volume asli " + formatNumber(earth.BCM) +
-            " BCM, volume lepas " +
-            formatNumber(earth.LCM) +
-            " LCM, dan volume padat " +
-            formatNumber(earth.CCM) + " CCM."
-        );
-
-        const equipmentDetails = equipment.map(item => {
-            return (
-                equipmentName(item.type) + ": " +
-                formatNumber(item.units) + " unit, " +
-                "produktivitas total " +
-                formatNumber(item.totalHourlyProductivity) +
-                " m³/jam (" + (item.workVolumeBasis || "basis belum ditentukan").toUpperCase() +
-                "), biaya operasional " +
-                formatRupiah(item.totalOperatingCost)
-            );
-        });
-
-        setText(
-            "detailRecommendation",
-            equipmentDetails.length
-                ? equipmentDetails.join("; ") + "."
-                : "Belum ada hasil estimasi alat."
-        );
-
-        setText(
-            "detailEstimate",
-            equipment.length
-                ? "Jumlah alat " + formatNumber(totalUnits) +
-                  " unit, biaya operasional " +
-                  formatRupiah(totalCost) +
-                  ", durasi alat terlama " +
-                  formatNumber(longestDuration) + " hari."
-                : "Estimasi belum tersedia."
-        );
-
-        setText(
-            "detailFleet",
-            selected
-                ? "Skenario " +
-                  scenarioNames[selectedKey] +
-                  " dipilih pengguna, menggunakan " +
-                  formatNumber(selected.totalUnits) +
-                  " unit alat, biaya operasional " +
-                  formatRupiah(selected.totalCost) +
-                  ", durasi alat terlama " +
-                  formatNumber(
-                      selected.longestEquipmentDuration
-                  ) + " hari."
-                : "Skenario akhir belum disimpan."
-        );
-
-        
         // ========================================
         // TABEL REKAPITULASI ALAT BERAT
         // ========================================
@@ -835,9 +776,9 @@ function getEquipmentModel(type) {
                     equipmentName(item.type),
                     getEquipmentModel(item.type),
                     formatNumber(item.units) + " unit",
-                    formatNumber(item.units) + " × " +
-                        formatNumber(item.hourlyProductivity) + " = " +
-                        formatNumber(item.totalHourlyProductivity) +
+                    (valid(item.totalHourlyProductivity)
+                        ? number(item.totalHourlyProductivity).toLocaleString("id-ID", {minimumFractionDigits: 2, maximumFractionDigits: 2})
+                        : "—") +
                         " m³/jam (" +
                         (item.workVolumeBasis || "basis belum ditentukan").toUpperCase() + ")",
                     formatNumber(item.durationDays) + " hari",
@@ -899,7 +840,7 @@ function getEquipmentModel(type) {
             "m³"
         );
 
-        const productivitySource = selected?.equipment ||
+        const productivitySource = (Array.isArray(selected?.equipment) ? selected.equipment.filter(item => item && typeof item === "object") : null) ||
             equipment.map(item => ({
                 type: item.type,
                 totalProductivity:
@@ -923,76 +864,13 @@ function getEquipmentModel(type) {
         renderScenarioComparison(fleet, targetDays);
         renderSelectedScenario(fleet);
 
-        // KESIMPULAN
-        const parts = [];
-
-        parts.push(
-            "Proyek " + (project.name || "ini") +
-            (project.location
-                ? " yang berlokasi di " + project.location
-                : "") +
-            " merupakan pekerjaan " +
-            (project.workType || "tanah") +
-            " dengan volume tanah asli " +
-            formatNumber(earth.BCM) + " BCM."
-        );
-
-        if (equipment.length) {
-            parts.push(
-                "Berdasarkan hasil estimasi terbaru, " +
-                "alat berat yang dianalisis adalah " +
-                equipmentText +
-                " dengan jumlah awal " +
-                formatNumber(totalUnits) + " unit."
-            );
+        // The same DOM is printed to PDF; no separate narrative or arithmetic.
+        const narrative = ExcabaseReportNarrative.build({equipment, fleet,
+            longestDuration, totalCost, totalUnits});
+        for (const [id, paragraphs] of [["reportAnalysis", narrative.analysis], ["reportConclusion", narrative.conclusion]]) {
+            const root = $(id);
+            if (root) root.replaceChildren(...paragraphs.map(text => createElement("p", "", text)));
         }
-
-        if (selected) {
-            parts.push(
-                "Pengguna memilih Skenario " +
-                scenarioNames[selectedKey] +
-                " yang menggunakan " +
-                formatNumber(selected.totalUnits) +
-                " unit alat dengan biaya operasional " +
-                formatRupiah(selected.totalCost) +
-                " dan durasi alat terlama " +
-                formatNumber(
-                    selected.longestEquipmentDuration
-                ) + " hari."
-            );
-
-            if (targetDays > 0) {
-                const meetsTarget =
-                    number(selected.longestEquipmentDuration)
-                    <= targetDays;
-
-                parts.push(
-                    meetsTarget
-                        ? "Indikator durasi alat terlama " +
-                          "memenuhi target " +
-                          formatNumber(targetDays) + " hari."
-                        : "Indikator durasi alat terlama " +
-                          "belum memenuhi target " +
-                          formatNumber(targetDays) + " hari."
-                );
-            }
-        } else {
-            parts.push(
-                "Skenario akhir belum dipilih dan disimpan."
-            );
-        }
-
-        parts.push(
-            "Hasil perhitungan merupakan estimasi awal. " +
-            "Durasi alat terlama tidak mewakili " +
-            "durasi keseluruhan proyek. " +
-            "Jumlah alat, keseimbangan produktivitas, " +
-            "tahapan pekerjaan, waktu tunggu, " +
-            "kondisi lapangan, serta biaya tambahan " +
-            "perlu dievaluasi sebelum pelaksanaan."
-        );
-
-        setText("reportConclusion", parts.join(" "));
     }
 
     // TOMBOL

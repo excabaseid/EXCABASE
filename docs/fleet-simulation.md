@@ -181,3 +181,44 @@ Verifikasi akhir dengan `-CapturePreviews`: **15.254 assertion lulus**, `browser
 Seluruh perubahan implementasi berada pada modul Fleet Visualization, halaman/CSS-nya, tes, dan dokumentasi ini. `js/fleet-simulation.js`, `js/productivity-calculator.js`, `js/main.js`, dan penyimpanan proyek tidak diubah dalam pengembangan tiga alat ini. Kunci handoff sessionStorage yang sudah ada dipertahankan; tidak ada kunci hasil proyek baru atau reset data pengguna.
 
 Input proyek pengujian adalah fixture pada profil Chrome sementara. Snapshot proyek pengguna tidak tersedia dalam workspace, sehingga hasil tersebut tidak dinyatakan sebagai pengujian data proyek aktual. Tidak ada commit, push, atau deployment otomatis dari workflow pengembangan ini.
+
+### Kecepatan pemutaran 50× dan 100×
+
+Dropdown menyediakan 1×, 2×, 5×, 10×, 50×, dan 100×. Pengali diterapkan pada
+waktu yang dikirim ke engine, bukan koordinat renderer atau produktivitas.
+`fleet-visualization-playback.js` memproses waktu dalam langkah maksimal 0,1 detik,
+dengan maksimal 250 langkah dan anggaran 8 ms yang diperiksa antar langkah pada
+setiap frame. Sisa waktu disimpan sebagai target waktu absolut, sehingga pekerjaan
+yang belum diproses tidak dibuang dan pembagian langkah tidak mengakumulasi
+kesalahan pengurangan sisa waktu. Masing-masing engine tetap memproses seluruh
+kejadian siklus di dalam setiap langkah dan menghentikan aktivitas sesuai aturan
+penyelesaian yang sudah ada, termasuk perjalanan kembali terakhir.
+
+Batas delta waktu nyata 0,25 detik sebelum pengali tetap dipertahankan untuk jeda
+frame yang panjang; batas ini bukan batas waktu simulasi sesudah pengali. Pada
+100×, frame tersebut dapat menambahkan 25 detik simulasi ke antrean waktu. Saat
+perangkat tidak mampu mengikuti, antrean diproses pada frame berikutnya; laju
+aktual dapat lebih lambat daripada pilihan nominal. Anggaran waktu bersifat
+kooperatif: satu panggilan engine harus selesai sebelum pemeriksaan anggaran
+berikutnya. Tidak ada jaminan performa 100× pada setiap perangkat.
+
+Pergantian kecepatan saat berjalan menyimpan interval terakhir dengan pengali
+lama sebelum memakai pengali baru. Pause mempertahankan engine dan antrean waktu,
+serta menggambar state terakhir agar kartu tidak tertinggal frame. Reset dan
+Terapkan membuat antrean baru. Tidak ada perubahan rumus, kapasitas, jumlah unit,
+target, storage, atau hasil skenario.
+
+`node tests/fleet-playback.cjs`: **16.455 assertion lulus**, pada armada 6 dan
+1.200 unit, kecepatan 1×/10×/50×/100×, dan dua sumber pemuatan (Excavator serta
+Wheel Loader). Uji mencakup keenam alat, state pada waktu simulasi yang sama,
+waktu selesai, jumlah siklus/lintasan/perjalanan, target tepat, konfigurasi tetap,
+serta batas langkah/anggaran dan pemrosesan penuh sisa waktu. Input adalah fixture.
+
+Regresi Chrome `tests/fleet-visualization-browser.ps1`: **15.581 assertion lulus**,
+`browserExceptions: []`, termasuk seluruh regresi enam alat, skenario, layout,
+pengali waktu nyata 1×/10×/50×/100×, perubahan kecepatan saat berjalan, Pause,
+Reset, parameter tetap, dan data proyek tetap sama. Artefak eksekusi:
+`C:\Users\ASUS\AppData\Local\Temp\excabase-fleet-031bde819eca4001bfe76e4d2064a786`.
+Regresi `test-estimate-simulation.cjs` serta pemeriksaan sintaks dan whitespace
+juga lulus. Pengujian browser memakai profil sementara dan fixture, bukan data
+proyek pengguna atau perangkat smartphone fisik.

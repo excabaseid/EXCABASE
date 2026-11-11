@@ -1,0 +1,77 @@
+/* Scoped visual exploration panel; existing scenario cards and navigation are untouched. */
+#smartInsights[hidden],#smartInsights [hidden]{display:none!important}
+#smartInsights{border:1px solid #d2dce5;border-top:4px solid #f4bf32;background:linear-gradient(135deg,rgba(255,255,255,.97),rgba(242,246,249,.96));border-radius:16px;padding:24px;color:#17324d;min-width:0;box-shadow:0 6px 20px #17324d0a}
+.si-heading{display:flex;align-items:start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+#smartInsights h2{margin:0 0 6px;font-size:22px}#smartInsights h3{font-size:16px;margin:0 0 12px}
+#smartInsights p{margin:6px 0;line-height:1.55}.si-note{font-size:12px;color:#586b7e}
+.si-badge{font-size:12px;background:#fff4cd;border:1px solid #efd27a;border-radius:20px;padding:7px 12px;font-weight:700}
+.si-visuals{display:grid;grid-template-columns:1fr 1fr;gap:18px;min-width:0}
+.si-surface{min-width:0;background:#fff;border:1px solid #dce4ec;border-radius:12px;padding:18px}
+.si-control{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;margin-bottom:14px;flex-wrap:wrap}
+#smartInsights select{font:inherit;min-height:42px;max-width:100%;border:1px solid #bdcad7;border-radius:8px;background:#fff;color:#17324d;padding:8px 10px}
+#smartInsights :is(select,[tabindex]):focus-visible{outline:3px solid #c89b12;outline-offset:3px}
+.si-bar-row{margin:12px 0}.si-bar-label{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin-bottom:6px;flex-wrap:wrap}.si-bar-label strong{font-variant-numeric:tabular-nums}
+.si-track{height:24px;background:#edf1f5;border-radius:5px;overflow:hidden}.si-fill{height:100%;background:linear-gradient(90deg,#17324d,#45647f);transition:width .3s ease;transform-origin:left;animation:si-bar-enter .35s ease-out}.si-active .si-fill{background:linear-gradient(90deg,#ecc23c,#ffdb6b)}
+@keyframes si-bar-enter{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.si-active .si-bar-label{font-weight:700}.si-ratio{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:12px}.si-ratio strong{font-size:25px;color:#17324d}.si-ratio span{font-size:12px;color:#586b7e}
+.si-ratio-track{height:10px;margin:8px 0;position:relative;background:#edf1f5;border-radius:5px;overflow:hidden}.si-ratio-track::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:#9aaabb;pointer-events:none}.si-ratio-fill{height:100%;background:#e7b82d;transition:width .3s ease}
+.si-empty{padding:16px;border:1px dashed #bdcad7;border-radius:8px;background:#f8fafc;font-size:13px}
+.si-recommendations{margin-top:18px;padding-top:16px;border-top:1px solid #dce4ec}.si-insights{display:grid;grid-template-columns:repeat(var(--si-recommend-columns,3),minmax(0,1fr));gap:14px;list-style:none;padding:0;margin:0}.si-insights li{font-size:13px;line-height:1.6;border-left:3px solid #efbd30;padding-left:12px}
+@media(max-width:1000px){.si-visuals{grid-template-columns:minmax(0,1fr)}.si-insights{grid-template-columns:1fr}}
+@media(max-width:600px){#smartInsights{padding:16px}.si-surface{padding:14px}#smartInsights h2{font-size:19px}.si-control{align-items:stretch}.si-control select{width:100%}}
+@media(prefers-reduced-motion:reduce){#smartInsights *{transition:none!important;animation:none!important}}
+@media screen{html.excabase-dark #smartInsights{background:#1b2b3d;color:#e5edf5;border-color:#40536a}html.excabase-dark #smartInsights :is(.si-surface,.si-empty){background:#24374d;border-color:#40536a}html.excabase-dark #smartInsights :is(.si-track,.si-ratio-track){background:#122133}html.excabase-dark #smartInsights .si-badge{background:#3c3925;color:#ffe18b;border-color:#8b743d}}
+@media print{#smartInsights{display:none!important}}
+
+/* Version 2: compact disclosure, independent indicators, and per-equipment detail. */
+#smartInsights h2 small{font-size:12px;vertical-align:middle;background:#e8edf2;border-radius:5px;padding:3px 6px}
+.si-header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#smartInsights button{font:inherit;font-size:12px;min-height:42px;padding:9px 13px;border:1px solid #ccd6e0;border-radius:8px;color:#17324d;background:#fff;cursor:pointer;font-weight:700}
+#smartInsights #siToggle{background:#17324d;color:#fff;border-color:#17324d}
+#smartInsights :is(button,input,summary):focus-visible{outline:3px solid #c89b12;outline-offset:3px}
+.si-collapse{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .3s ease,visibility 0s linear .3s}
+.si-collapse.si-open{grid-template-rows:1fr;visibility:visible;transition-delay:0s}
+.si-dashboard-inner{min-height:0;overflow:hidden}
+#smartInsights:has(.si-collapse:not(.si-open)) .si-heading{margin-bottom:0}
+.si-scenario-control{justify-content:flex-start;background:#f4f7fa;border-radius:8px;padding:10px 12px}
+.si-overview{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0 18px}
+.si-overview-card{padding:13px;border:1px solid #dce4ec;border-radius:10px;background:#fff;min-width:0}
+.si-overview-card span{font-size:11px;color:#586b7e;display:block;margin-bottom:7px}
+.si-overview-card strong{font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;display:block}
+.si-number{animation:si-number-enter .2s ease-out}
+@keyframes si-number-enter{from{opacity:.4;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+.si-scenario-changes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.si-change-card{background:#f5f8fa;border-radius:8px;padding:10px;min-width:0}
+#smartInsights h4{font-size:13px;margin:0 0 9px;line-height:1.4}
+.si-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.si-metrics div{min-width:0}.si-metrics dt{font-size:11px;color:#586b7e;margin-bottom:4px}.si-metrics dd{font-size:12px;font-weight:700;margin:0;line-height:1.5;overflow-wrap:anywhere}
+.si-change-card .si-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.si-status{--si-tone:#64748b;--si-soft:#f0f3f6;display:inline-block;border:1px solid var(--si-tone);background:var(--si-soft);color:var(--si-tone);padding:4px 7px;border-radius:6px;font-size:11px;font-weight:700;line-height:1.5}
+.si-green{--si-tone:#216644;--si-soft:#e9f6ee}.si-yellow{--si-tone:#805b09;--si-soft:#fff6d9}.si-red{--si-tone:#a23535;--si-soft:#fcecec}.si-gray{--si-tone:#566679;--si-soft:#edf1f5}
+.si-balance-indicator{display:flex;align-items:center;gap:16px;margin:14px 0}.si-balance-indicator>div:last-child{min-width:0;font-size:12px}
+.si-gauge{--gauge-value:0%;position:relative;display:grid;place-items:center;width:112px;height:112px;flex:0 0 112px;border-radius:50%;background:conic-gradient(var(--si-tone) 0 var(--gauge-value),#e8edf2 var(--gauge-value) 100%)}
+.si-gauge::before{content:'';position:absolute;inset:10px;border-radius:50%;background:#fff;pointer-events:none}
+.si-gauge strong{position:relative;font-size:20px;max-width:84px;text-align:center;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.si-relationship{padding:8px;background:#f1f5f8;border-radius:6px;font-weight:700;font-size:11px;text-align:center;letter-spacing:.4px}
+.si-help{border-top:1px solid #e1e7ed;padding-top:12px;margin-top:12px;font-size:12px}
+#smartInsights summary{cursor:pointer;font-size:12px;font-weight:700;min-height:32px;padding:6px 0}
+.si-threshold-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.si-threshold-grid label{font-size:11px;line-height:1.5;min-width:0}
+#smartInsights .si-threshold-grid input{display:block;min-height:40px;width:100%;max-width:100%;border:1px solid #bdcad7;border-radius:6px;background:#fff;color:#17324d;padding:7px;font:inherit}
+.si-error{font-size:12px;color:#a23535}
+.si-equipment-section,.si-duration-section{margin-top:20px}
+.si-equipment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.si-equipment-card{min-width:0;border:1px solid #d9e2ea;border-radius:10px;background:#fff;padding:15px}
+.si-flags{display:flex;gap:5px;flex-wrap:wrap}
+.si-equipment-details{border-top:1px solid #e3e9ef;margin-top:10px;padding-top:5px}
+#smartInsights .si-change-note{font-size:11px;color:#586b7e;border-top:1px solid #edf1f5;padding-top:9px}
+.si-mini-chart .si-track{height:10px}.si-mini-chart .si-bar-row{margin:8px 0}.si-mini-chart .si-bar-label{font-size:10px}
+#siDurationChart .si-track{height:12px}#siDurationChart .si-bar-row{margin:10px 0}
+.si-driver .si-fill{background:linear-gradient(90deg,#ecc23c,#ffdb6b)}.si-driver .si-bar-label{font-weight:700}
+#smartInsights .si-recommendation{position:relative;padding:14px;border:1px solid #dae2ea;border-top:3px solid var(--si-tone);border-radius:9px;background:#fff;min-width:0}
+.si-recommendation-icon{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:3px;background:var(--si-soft);color:var(--si-tone);border-radius:6px;margin-right:7px;font-size:13px;font-weight:700}
+.si-recommendation h4{margin-top:10px!important}.si-recommendation-value{display:block;font-size:14px;overflow-wrap:anywhere}.si-recommendation p{font-size:12px}
+.si-bar-label strong{min-width:0;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:1100px){.si-equipment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.si-overview{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.si-equipment-grid{grid-template-columns:1fr}.si-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.si-overview-card:last-child{grid-column:1/-1}.si-scenario-changes{grid-template-columns:1fr}.si-gauge{width:92px;height:92px;flex-basis:92px}.si-gauge strong{font-size:17px;max-width:65px}.si-balance-indicator{gap:10px}.si-status{font-size:10px}.si-header-actions{width:100%;justify-content:space-between}}
+@media screen{html.excabase-dark #smartInsights :is(.si-overview-card,.si-equipment-card,.si-recommendation){background:#24374d;border-color:#40536a}html.excabase-dark #smartInsights :is(.si-change-card,.si-scenario-control,.si-relationship){background:#122133}html.excabase-dark #smartInsights .si-gauge::before{background:#24374d}html.excabase-dark #smartInsights .si-status{background:#122133;border-color:var(--si-tone)}}

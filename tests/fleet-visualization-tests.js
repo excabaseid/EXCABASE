@@ -238,6 +238,7 @@
         await window.runBulldozerAudit({assert,near,wait,open,fixture,save,read});
         await window.runOperationsAudit({assert,near,wait,open,fixture,save,read});
         await window.runFleetLayoutAudit({assert,near,wait,open,fixture,save,read});
+        await window.runFleetSpeedAudit({assert,near,wait,open,fixture,save,read});
         assert(errors.length===0,'no browser errors: '+errors.join('; '));
         window.ExcabaseFleetTestPreview={project:JSON.parse(projectBefore),source:sources.cepat};
         output.textContent=JSON.stringify({passed:true,assertions:checks.length,widths:[360,390,768,1366,1920],lastChecks:checks.slice(-12)});

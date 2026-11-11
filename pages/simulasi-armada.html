@@ -408,6 +408,7 @@
 
     </style>
     <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/smart-insights.css">
     <script src="../js/ui-preferences.js"></script>
     <link rel="stylesheet" href="../css/page-titles.css">
     <link rel="stylesheet" href="../css/results-ui.css">
@@ -631,10 +632,82 @@
                class="fleet-status"></p>
         </section>
 
+        <section id="smartInsights" aria-labelledby="siTitle" hidden>
+            <header class="si-heading">
+                <div><h2 id="siTitle">EXCABASE Smart Insights <small>2.0</small></h2>
+                    <p class="si-note">Dashboard kapasitas, kinerja alat, dan pertimbangan perencanaan</p></div>
+                <div class="si-header-actions"><span class="si-badge" id="siActiveScenario"></span>
+                    <button id="siToggle" type="button" aria-expanded="false" aria-controls="siDashboard">Buka Smart Insights</button></div>
+            </header>
+            <div class="si-collapse" id="siDashboard" inert aria-hidden="true"><div class="si-dashboard-inner">
+            <label class="si-control si-scenario-control" for="siScenario">Skenario aktif · sinkron dengan Simulasi Armada
+                <select id="siScenario"><option value="dasar">Dasar</option><option value="hemat">Hemat</option><option value="cepat">Cepat</option></select>
+            </label>
+            <div class="si-overview" id="siOverview" aria-label="Ringkasan skenario aktif"></div>
+            <div class="si-visuals">
+                <section class="si-surface" aria-labelledby="siComparisonTitle">
+                    <h3 id="siComparisonTitle">Perbandingan skenario</h3>
+                    <label class="si-control" for="siMetric">Metrik grafik
+                        <select id="siMetric"><option value="duration">Estimasi durasi</option><option value="cost">Biaya operasional</option><option value="units">Jumlah unit</option></select>
+                    </label>
+                    <div id="siScenarioChart" role="group"></div>
+                    <div id="siScenarioChanges" class="si-scenario-changes" aria-label="Perubahan terhadap skenario Dasar"></div>
+                    <p class="si-note" id="siDurationAssumption">Setiap metrik memakai skala dan satuannya sendiri.</p>
+                </section>
+                <section class="si-surface" aria-labelledby="siBalanceTitle">
+                    <h3 id="siBalanceTitle">Fleet Balance Indicator <span tabindex="0" title="Indikator kapasitas potensial; bukan ukuran efisiensi atau utilisasi aktual." aria-label="Indikator kapasitas potensial, bukan utilisasi aktual">ⓘ</span></h3>
+                    <label class="si-control" id="siLoaderControl" for="siLoader" hidden>Hubungan operasional untuk analisis sesi
+                        <select id="siLoader"><option value="">Konfirmasi pasangan pemuat…</option></select>
+                    </label>
+                    <div class="si-balance-indicator">
+                        <div class="si-gauge" id="siGauge" role="img"><strong id="siGaugeValue">—</strong></div>
+                        <div><span class="si-status" id="siBalanceStatus"></span><p id="siBalanceLimiter"></p>
+                            <p class="si-note" id="siBalanceAdvice"></p></div>
+                    </div>
+                    <p class="si-note" id="siBalanceMessage" aria-live="polite"></p>
+                    <div id="siBalanceValues" hidden>
+                        <div class="si-relationship" id="siRelationship"></div>
+                        <div id="siBalanceChart" role="group" aria-label="Perbandingan kapasitas muat dan angkut pada basis volume yang sama"></div>
+                        <p id="siRatioCaption" class="si-note"></p>
+                        <p class="si-note">Rasio bukan efisiensi atau utilisasi. Antrean dan waktu tunggu memerlukan analisis siklus serta kondisi operasi.</p>
+                    </div>
+                    <details class="si-help"><summary>Ambang heuristik perencanaan</summary>
+                        <p class="si-note">Parameter tampilan per sesi, bukan standar PUPR atau ketentuan teknik resmi. Rasio memakai kapasitas angkut ÷ muat × 100%.</p>
+                        <div class="si-threshold-grid">
+                            <label>Batas merah bawah (%)<input id="siCriticalLow" type="number" value="70" min="0" step="1"></label>
+                            <label>Batas hijau bawah (%)<input id="siBalancedLow" type="number" value="90" min="0" max="100" step="1"></label>
+                            <label>Batas hijau atas (%)<input id="siBalancedHigh" type="number" value="110" min="100" step="1"></label>
+                            <label>Batas merah atas (%)<input id="siCriticalHigh" type="number" value="140" min="100" step="1"></label>
+                        </div>
+                        <button type="button" id="siApplyThresholds">Terapkan ambang sesi</button>
+                        <p id="siThresholdError" class="si-error" role="alert" hidden></p>
+                        <p id="siThresholdLegend" class="si-note"></p>
+                    </details>
+                </section>
+            </div>
+            <section class="si-equipment-section" aria-labelledby="siEquipmentTitle">
+                <h3 id="siEquipmentTitle">Equipment Performance</h3>
+                <p class="si-note">Perubahan dibandingkan dengan alat yang sama pada skenario Dasar. Produktivitas lintas fungsi tidak diperingkatkan.</p>
+                <div id="siEquipmentGrid" class="si-equipment-grid"></div>
+            </section>
+            <section class="si-surface si-duration-section" aria-labelledby="siDurationTitle">
+                <h3 id="siDurationTitle">Duration Driver Analysis</h3>
+                <div id="siDurationChart" role="group" aria-label="Perbandingan durasi alat pada skenario aktif"></div>
+                <p id="siDurationNote" class="si-note"></p>
+            </section>
+            <section class="si-recommendations" aria-labelledby="siRecommendationsTitle">
+                <h3 id="siRecommendationsTitle">Smart Recommendations</h3>
+                <ul class="si-insights" id="siInsights"></ul>
+            </section>
+            </div></div>
+        </section>
+
     </div>
 
     <script src="../js/project-storage.js"></script>
     <script src="../js/fleet-visualization-data.js"></script>
+    <script src="../js/smart-insights-model.js"></script>
+    <script src="../js/smart-insights.js"></script>
     <script src="../js/fleet-simulation.js"></script>
     <script src="../js/fleet-visualization-link.js"></script>
     <script src="../js/project-lock.js"></script>

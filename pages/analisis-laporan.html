@@ -382,6 +382,7 @@
 }
 
 @media print {
+ .report-section:has(> .report-completion-card) { display:none !important; }
   .report-chart-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -532,52 +533,6 @@
 }
 
 /* =========================================
-   DETAIL ANALISIS TEKNIK
-========================================= */
-
-.report-technical-card {
-    background: #ffffff;
-    border: 1px solid #dce4ee;
-    border-radius: 14px;
-    padding: 12px 24px;
-    overflow: hidden;
-}
-
-.report-technical-card .report-detail-row {
-    display: grid;
-    grid-template-columns: 32% 1fr;
-    gap: 24px;
-    padding: 20px 8px;
-    border-bottom: 1px solid #e2e8f0;
-    align-items: start;
-}
-
-.report-technical-card .report-detail-row:last-child {
-    border-bottom: none;
-}
-
-.report-technical-card .report-detail-row > :first-child {
-    font-weight: 700;
-    color: #17324d;
-    padding-left: 12px;
-    border-left: 3px solid #eab308;
-}
-
-.report-technical-card .report-detail-row > :last-child {
-    color: #475569;
-    line-height: 1.7;
-    overflow-wrap: anywhere;
-}
-
-@media (max-width: 768px) {
-    .report-technical-card .report-detail-row {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-}
-
-
-/* =========================================
    ANALISIS DAN KESIMPULAN
 ========================================= */
 
@@ -661,7 +616,6 @@
         print-color-adjust: exact;
     }
 
-    .report-technical-card,
     .report-conclusion-card,
     .report-selected {
         break-inside: avoid;
@@ -837,7 +791,33 @@
     transform: translateY(-2px);
 }
 
-    </style>
+    /* Final presentation rules shared by screen and browser PDF. */
+.report-conclusion-body p { margin: 0 0 14px; }
+.report-conclusion-body h3 { color: #17324d; margin: 22px 0 12px; }
+.report-conclusion-body { text-align:left; line-height:1.75; }
+.report-equipment-table th { width:auto; }
+.report-equipment-table { min-width:800px; }
+.report-equipment-table th,.report-equipment-table td { display:table-cell; width:auto; padding:12px 14px; }
+.report-equipment-table td:nth-child(n+3) { text-align:right; white-space:nowrap; }
+.report-equipment-table th:nth-child(n+3) { text-align:right; }
+.report-equipment-table td:nth-child(2) { min-width:120px; overflow-wrap:anywhere; }
+.report-section,.report-card,.main { min-width:0; }
+@media print {
+ .report-section,.report-conclusion-card,.report-conclusion-body { break-inside:auto !important; page-break-inside:auto !important; }
+ .report-conclusion-card { padding:16px 18px; }
+ .report-conclusion-body { font-size:11px; line-height:1.6; }
+ .report-conclusion-heading { margin-bottom:12px; padding-bottom:12px; }
+ .report-conclusion-heading h3,.report-conclusion-body h3 { font-size:14px; }
+ .report-conclusion-body p { margin-bottom:10px; }
+ .report-equipment-table { min-width:0; table-layout:fixed; font-size:9px; }
+ .report-equipment-table th,.report-equipment-table td { font-size:9px; padding:7px 5px; white-space:normal !important; overflow-wrap:anywhere; min-width:0 !important; }
+ .report-equipment-table thead { display:table-header-group; }
+ .report-equipment-table tr { break-inside:avoid; }
+ .report-card:has(.report-equipment-table) { overflow:visible !important; padding:0; break-inside:auto !important; }
+ #reportFleetComparison > div { overflow:visible; }
+ #reportFleetComparison .report-table th,#reportFleetComparison .report-table td { display:table-cell; width:auto; min-width:0; padding:8px; font-size:10px; }
+}
+</style>
     <link rel="stylesheet" href="../css/theme.css">
     <script src="../js/ui-preferences.js"></script>
     <link rel="stylesheet" href="../css/page-titles.css">
@@ -997,36 +977,9 @@
     </div>
   </div>
 </section>
+<section id="reportFleetComparison" class="report-section"></section>
+<div id="reportSelectedScenario" class="report-selected"></div>
 
-                        <!-- DETAIL TEKNIK -->
-            
-<section class="report-section">
-    <h2>Detail Analisis Teknik</h2>
-
-    <div class="report-technical-card">
-
-        <div class="report-detail-row">
-            <strong>Konversi Volume Tanah</strong>
-            <span id="detailEarthwork">—</span>
-        </div>
-
-        <div class="report-detail-row">
-            <strong>Alat Berat yang Digunakan</strong>
-            <span id="detailRecommendation">—</span>
-        </div>
-
-        <div class="report-detail-row">
-            <strong>Estimasi Waktu dan Biaya</strong>
-            <span id="detailEstimate">—</span>
-        </div>
-
-        <div class="report-detail-row">
-            <strong>Simulasi Armada</strong>
-            <span id="detailFleet">—</span>
-        </div>
-
-    </div>
-</section>
 
 
             <!-- KESIMPULAN -->
@@ -1039,15 +992,15 @@
             <span class="report-conclusion-icon">✓</span>
 
             <div>
-                <h3>Kesimpulan Hasil Analisis</h3>
+                <h3>Analisis Hasil Perencanaan</h3>
                 <p>Evaluasi teknis berdasarkan data proyek EXCABASE</p>
             </div>
         </div>
 
         <div class="report-conclusion-body">
-            <p id="reportConclusion">
-                Hasil analisis proyek akan ditampilkan di sini.
-            </p>
+            <div id="reportAnalysis"></div>
+            <h3>Kesimpulan</h3>
+            <div id="reportConclusion">Hasil analisis proyek akan ditampilkan di sini.</div>
         </div>
     </div>
 </section>
@@ -1092,6 +1045,7 @@
 </div>
 
 <script src="../js/project-storage.js"></script>
+<script src="../js/report-narrative.js"></script>
 <script src="../js/analisis-laporan.js"></script>
 <script src="../js/project-completion.js"></script>
 <script src="../js/main.js"></script>

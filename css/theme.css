@@ -21,6 +21,11 @@
         background-repeat: no-repeat;
         background-size: 100% 1200px;
     }
+    /* One continuous reflection across the body's full, content-driven height.
+       Keep bespoke Welcome/Fleet canvases on their existing background rules. */
+    html:not(.excabase-dark) body.sidebar-shell:not(.welcome-page):not(.fleet-visualization) {
+        background-size: 100% 100%;
+    }
     /* Only exposed information surfaces use glass; calculators and nested cards stay solid. */
     html:not(.excabase-dark) body.sidebar-shell :is(.dashboard-stats > .card, .dashboard-project-panel, .dashboard-quick-panel, .stats-container > .stat-card) {
         background-color: var(--page-glass-surface);
